@@ -23,7 +23,7 @@ const POLL_MS = 8000;
 const TR = {
   th: {
     appTitle: "SEPT.LOCK",
-    appSubtitle: (n) => `${n} ช่อง · เชื่อมต่อระบบจริง`,
+    appSubtitle: (n) => `${n} ช่อง · เชื่อมต่อระบบแล้ว`,
     currentTime: (t) => `เวลาปัจจุบัน ${t}`,
     alertBanner: (ids) => `ตรวจพบการเปิดตู้ผิดปกติที่ช่อง ${ids} — แตะที่ช่องเพื่อดูรายละเอียด`,
     available: "ว่าง",
@@ -46,7 +46,7 @@ const TR = {
     tempOpenBtn: "เปิดชั่วคราว (หยิบของ) — จับเวลาต่อ",
     quotaSuffix: " · ครบโควตาแล้ว",
     finishBtn: "จบการทำงาน — ไปหน้าชำระเงิน",
-    quotaNote: (max) => `เปิดชั่วคราวครบ ${max} ครั้งฟรีแล้ว ครั้งต่อไปต้องจบการทำงานและชำระเงินก่อน`,
+    quotaNote: (max) => `เปิดชั่วคราวครบ ${max} ครั้งแล้ว ครั้งต่อไปต้องจบการทำงานและชำระเงินก่อน`,
     close: "ปิด",
     checkoutTitle: (id) => `ช่อง ${id} · เช็คเอาท์`,
     elapsedTier: (elapsed, tier) => `ใช้เวลา ${elapsed} · เข้าเกณฑ์ ${tier}`,
@@ -572,8 +572,12 @@ export default function TrailLockerApp() {
             {checkoutFlow.payMethod === "qr" && (
               <>
                 <div style={{ display: "flex", justifyContent: "center", margin: "16px 0" }}>
-                  <FakeQR seed={`locker-${checkoutFlow.locker.id}-${checkoutFlow.bill.price}`} />
-                </div>
+  <img
+    src="/promptpay-qr.jpg"
+    alt="PromptPay QR"
+    style={{ width: 180, height: 180, border: `1px solid ${LINE}`, padding: 8, background: WHITE }}
+  />
+</div>
                 <div style={{ fontSize: 12, color: MUTE, marginBottom: 4 }}>{t("scanQr")}</div>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 600, marginBottom: 18 }}>฿{checkoutFlow.bill.price}</div>
                 <button disabled={busy} onClick={finishCheckout} style={{ width: "100%", background: GREEN, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("confirmPaid")}</button>
