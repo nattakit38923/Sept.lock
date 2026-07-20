@@ -1,14 +1,13 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 
-// ⚠️ แก้ URL นี้ให้เป็นของคุณเอง (จาก Apps Script > Deploy > Web app)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTvr0L5QGt7ccbNfFEvHUuJOimhf3qEaC6QppP5Bk3W8aTHcPMWbnZsislVFKIJ9GH/exec";
 
-const INK = "#3E2A1E";      // น้ำตาลกาแฟเข้ม (แทนที่ดำ)
+const INK = "#3E2A1E";      // น้ำตาลกาแฟเข้ม
 const PAPER = "#FAF6F0";    // ขาวออฟไวท์อุ่นๆ
 const WHITE = "#FFFFFF";
 const GREEN = "#3E9B4F";
 const RED = "#B5533F";      // ปรับให้เข้ากับโทนน้ำตาล
-const ALERT = "#C7893A";    // ส้มอมน้ำตาล เข้ากับธีม
+const ALERT = "#C7893A";    // ส้มอมน้ำตาล
 const MUTE = "#8A7A6B";     // น้ำตาลอ่อนสำหรับตัวหนังสือรอง
 const LINE = "#E8DFD3";     // เส้นขอบน้ำตาลอ่อนมาก
 
@@ -161,39 +160,6 @@ async function fetchStatus() {
   return res.json();
 }
 
-function seedGrid(seed, size = 9) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  const cells = [];
-  for (let i = 0; i < size * size; i++) {
-    h = (h * 1103515245 + 12345) >>> 0;
-    cells.push((h >>> 16) % 2 === 0);
-  }
-  return cells;
-}
-function FakeQR({ seed, size = 9, dim = 132 }) {
-  const cells = useMemo(() => seedGrid(seed, size), [seed, size]);
-  const cell = dim / size;
-  return (
-    <div style={{ width: dim, height: dim, background: WHITE, padding: 8, border: `1px solid ${LINE}` }}>
-      <svg width={dim} height={dim} viewBox={`0 0 ${dim} ${dim}`}>
-        <rect width={dim} height={dim} fill={WHITE} />
-        {cells.map((on, i) => {
-          if (!on) return null;
-          const x = (i % size) * cell, y = Math.floor(i / size) * cell;
-          return <rect key={i} x={x} y={y} width={cell} height={cell} fill={INK} />;
-        })}
-        {[[0, 0], [dim - cell * 2.4, 0], [0, dim - cell * 2.4]].map(([fx, fy], idx) => (
-          <g key={idx}>
-            <rect x={fx} y={fy} width={cell * 2.2} height={cell * 2.2} fill={INK} />
-            <rect x={fx + cell * 0.4} y={fy + cell * 0.4} width={cell * 1.4} height={cell * 1.4} fill={WHITE} />
-            <rect x={fx + cell * 0.8} y={fy + cell * 0.8} width={cell * 0.6} height={cell * 0.6} fill={INK} />
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-}
 function TimerDial({ progressMs, totalMs, active }) {
   const size = 46, r = 18, cx = size / 2, cy = size / 2;
   const angle = totalMs > 0 ? Math.min(progressMs / totalMs, 1) * 360 : 0;
