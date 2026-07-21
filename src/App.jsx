@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTvr0L5QGt7ccbNfFEvHUuJOimhf3qEaC6QppP5Bk3W8aTHcPMWbnZsislVFKIJ9GH/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwocfUyVBXLLSVtGCme-9kNm3pAMQvt-p0oVoCjFgzRS_lYSB2G9EHiAdTj_zPkR7Cw/exec";
 
 const INK = "#3E2A1E";      // น้ำตาลกาแฟเข้ม
 const PAPER = "#FAF6F0";    // ขาวออฟไวท์อุ่นๆ
