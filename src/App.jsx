@@ -62,6 +62,9 @@ const TR = {
     toastAck: (id) => `รับทราบแจ้งเตือนช่อง ${id} แล้ว`,
     toastDone: (amt, id) => `ทำรายการสำเร็จ ฿${amt} ช่อง ${id} ว่างแล้ว`,
     working: "กำลังดำเนินการ...",
+    closeDoorTitle: "หยิบของเรียบร้อยแล้ว",
+    closeDoorBody: "กรุณาปิดประตูตู้ให้สนิท ระบบจะล็อกอัตโนมัติทันที",
+    closeDoorAck: "เข้าใจแล้ว ปิดตู้เรียบร้อย",
   },
   en: {
     appTitle: "SEPT.LOCK",
@@ -105,6 +108,9 @@ const TR = {
     toastAck: (id) => `Alert acknowledged for bay ${id}`,
     toastDone: (amt, id) => `Done. Paid ฿${amt}. Bay ${id} is now available.`,
     working: "Working...",
+    closeDoorTitle: "Items retrieved",
+    closeDoorBody: "Please close the locker door firmly. It will lock automatically.",
+    closeDoorAck: "Got it, door is closed",
   },
 };
 
@@ -219,6 +225,7 @@ export default function TrailLockerApp() {
   const [pinError, setPinError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [checkoutFlow, setCheckoutFlow] = useState(null);
+  const [closeDoorReminder, setCloseDoorReminder] = useState(null); // { bay }
   const [toast, setToast] = useState(null);
   const pinResetKey = useRef(0);
 
@@ -354,23 +361,24 @@ export default function TrailLockerApp() {
   const confirmPayment = (method) => setCheckoutFlow((cf) => ({ ...cf, payMethod: method }));
 
   const finishCheckout = async () => {
-    if (!checkoutFlow) return;
-    const { locker, bill, payMethod } = checkoutFlow;
-    setBusy(true);
-    await callApi("finishCheckout", { bay: locker.id, amount: bill.price, method: payMethod });
-    setBusy(false);
-    setToast(t("toastDone", bill.price, locker.id));
-    setCheckoutFlow(null);
-    refreshOne();
-  };
-
+     if (!checkoutFlow) return;
+     const { locker, bill, payMethod } = checkoutFlow;
+     setBusy(true);
+     await callApi("finishCheckout", { bay: locker.id, amount: bill.price, method: payMethod });
+     setBusy(false);
+     setToast(t("toastDone", bill.price, locker.id));
+     setCheckoutFlow(null);
+     setCloseDoorReminder({ bay: locker.id });
+     refreshOne();
+   };
+  const acknowledgeCloseDoor = () => setCloseDoorReminder(null);
   const cancelCheckout = () => setCheckoutFlow(null);
+
   const closeSheet = () => {
     setSelected(null);
     setStage(null);
     setPinError(null);
   };
-
   const selectedLocker = lockers.find((l) => l.id === selected);
   const lockedNow = selectedLocker?.lockUntil && now < selectedLocker.lockUntil;
   const lockRemainSec = lockedNow ? Math.ceil((selectedLocker.lockUntil - now) / 1000) : 0;
@@ -562,6 +570,31 @@ export default function TrailLockerApp() {
           </div>
         </div>
       )}
+
+            {closeDoorReminder && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{ position: "fixed", inset: 0, background: "rgba(62,42,30,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 55, padding: 20 }}
+        >
+          <div style={{ background: WHITE, width: "100%", maxWidth: 360, borderRadius: 12, padding: "28px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: 40, marginBottom: 6 }}>🚪</div>
+            <div style={{ fontFamily: "'Fraunces', serif", fontSize: 19, fontWeight: 600, color: INK, marginBottom: 8 }}>
+              {t("closeDoorTitle")}
+            </div>
+            <p style={{ fontSize: 13.5, color: MUTE, lineHeight: 1.7, marginBottom: 20 }}>
+              {t("closeDoorBody")}
+            </p>
+            <button
+              onClick={acknowledgeCloseDoor}
+              style={{ width: "100%", background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}
+            >
+              {t("closeDoorAck")}
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {toast && (
         <div style={{ position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)", background: INK, color: WHITE, padding: "10px 18px", borderRadius: 30, fontSize: 12.5, maxWidth: "90%", textAlign: "center", zIndex: 60, boxShadow: "0 6px 20px rgba(0,0,0,0.25)" }}>
