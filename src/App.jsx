@@ -352,7 +352,7 @@ export default function TrailLockerApp() {
     refreshOne();
   };
 
-  const handleVerifyPin = async (locker, pin) => {
+ const handleVerifyPin = async (locker, pin) => {
     setBusy(true);
     const result = await callApi("verifyPin", { bay: locker.id, pin });
     setBusy(false);
@@ -371,7 +371,7 @@ export default function TrailLockerApp() {
     }
   };
 
-    const handleTempOpen = async (locker) => {
+ const handleTempOpen = async (locker) => {
       setBusy(true);
       const result = await callApi("tempOpen", { bay: locker.id });
       setBusy(false);
@@ -383,35 +383,35 @@ export default function TrailLockerApp() {
     }
   };
 
-    const handleForgotPin = () => {
+ const handleForgotPin = () => {
       setFlowError(null);
       setStage("forgotphone");
       pinResetKey.current += 1;
   };
 
-    const handleCheckPhoneSubmit = async (phone) => {
+ const handleCheckPhoneSubmit = async (phone) => {
       setBusy(true);
       const result = await callApi("checkPhone", { bay: selected, phone });
       setBusy(false);
       if (result === "match") {
-      setStage("resetpin");
-      pinResetKey.current += 1;
+       setStage("resetpin");
+       pinResetKey.current += 1;
       } else {
         setStage("phonefail");
       }
     };
 
-     const handleNewPinFirst = (pin) => {
+   const handleNewPinFirst = (pin) => {
       setPendingPin(pin);
       setStage("confirmresetpin");
       pinResetKey.current += 1;
     };
 
-     const handleNewPinConfirm = async (pin) => {
+   const handleNewPinConfirm = async (pin) => {
       if (pin !== pendingPin) {
-      setFlowError(t("pinMismatch"));
-      setStage("resetpin");
-      pinResetKey.current += 1;
+       setFlowError(t("pinMismatch"));
+       setStage("resetpin");
+       pinResetKey.current += 1;
       return;
     }
       setBusy(true);
@@ -561,11 +561,56 @@ export default function TrailLockerApp() {
               </button>
             )}
 
+            {stage === "setphone" && (
+  <>
+    <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("setPhonePrompt")}</p>
+    <PinPad length={10} resetKey={pinResetKey.current} onComplete={handleSetPhone} disabled={busy} />
+  </>
+)}
+
             {stage === "setpin" && (
-              <>
-                <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("setPinPrompt")}</p>
-                <PinPad resetKey={pinResetKey.current} onComplete={handleSetPin} disabled={busy} />
+             <>
+              <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("setPinPrompt2")}</p>
+              {flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
+              <PinPad length={4} resetKey={pinResetKey.current} onComplete={handleFirstPin} disabled={busy} />
               </>
+           )}
+
+            {stage === "confirmpin" && (
+             <>
+               <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("confirmPinPrompt")}</p>
+               <PinPad length={4} resetKey={pinResetKey.current} onComplete={handleConfirmPin} disabled={busy} />
+             </>
+           )}
+
+            {stage === "forgotphone" && (
+             <>
+              <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("forgotPhonePrompt")}</p>
+              <PinPad length={10} resetKey={pinResetKey.current} onComplete={handleCheckPhoneSubmit} disabled={busy} />
+             </>
+          )}
+
+            {stage === "phonefail" && (
+             <div style={{ marginTop: 16, textAlign: "center", padding: "18px 12px", background: "#FBEAD9", borderRadius: 8 }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>⚠</div>
+              <div style={{ fontSize: 13.5, color: "#8A4A0F", marginBottom: 6, fontWeight: 600 }}>{t("phoneNotMatch")}</div>
+              <div style={{ fontSize: 12.5, color: "#8A4A0F" }}>{t("contactAdminLine")}</div>
+             </div>
+           )}
+
+            {stage === "resetpin" && (
+             <>
+              <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("resetPinPrompt")}</p>
+              <PinPad length={4} resetKey={pinResetKey.current} onComplete={handleNewPinFirst} disabled={busy} />
+            </>
+           )}
+
+            {stage === "confirmresetpin" && (
+             <>
+              <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("confirmResetPinPrompt")}</p>
+              {flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
+              <PinPad length={4} resetKey={pinResetKey.current} onComplete={handleNewPinConfirm} disabled={busy} />
+             </>
             )}
 
             {stage === "verify" && (
@@ -579,10 +624,10 @@ export default function TrailLockerApp() {
                     {pinError && pinError !== "locked" && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginTop: -8, marginBottom: 8 }}>{pinError}</div>}
                   </>
                 )}
-                <button disabled={busy} onClick={() => handleForgotPin(selectedLocker)} style={{ marginTop: 12, width: "100%", background: "transparent", border: "none", color: MUTE, fontSize: 12.5, textDecoration: "underline" }}>
-                  {t("forgotPin")}
+                <button onClick={handleForgotPin} style={{ marginTop: 12, width: "100%", background: "transparent", border: "none", color: MUTE, fontSize: 12.5, textDecoration: "underline" }}>
+                 {t("forgotPin")}
                 </button>
-              </>
+                 </>
             )}
 
             {stage === "menu" && (
