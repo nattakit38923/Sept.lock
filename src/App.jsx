@@ -247,6 +247,9 @@ export default function TrailLockerApp() {
   const [busy, setBusy] = useState(false);
   const [checkoutFlow, setCheckoutFlow] = useState(null);
   const [closeDoorReminder, setCloseDoorReminder] = useState(null); // { bay }
+  const [pendingPhone, setPendingPhone] = useState("");
+  const [pendingPin, setPendingPin] = useState("");
+  const [flowError, setFlowError] = useState(null);
   const [toast, setToast] = useState(null);
   const pinResetKey = useRef(0);
 
@@ -307,20 +310,45 @@ export default function TrailLockerApp() {
   };
 
   const openLocker = (locker) => {
-    setSelected(locker.id);
-    setPinError(null);
-    pinResetKey.current += 1;
-    setStage(locker.status === "available" ? "setpin" : "verify");
-    setCheckoutFlow(null);
+   setSelected(locker.id);
+   setPinError(null);
+   setFlowError(null);
+   setPendingPhone("");
+   setPendingPin("");
+   pinResetKey.current += 1;
+   setStage(locker.status === "available" ? "setphone" : "verify");
+   setCheckoutFlow(null);
   };
 
-  const handleSetPin = async (pin) => {
+  const handleSetPhone = (phone) => {
+   setPendingPhone(phone);
+   setFlowError(null);
+   setStage("setpin");
+  pinResetKey.current += 1;
+  };
+
+  const handleFirstPin = (pin) => {
+   setPendingPin(pin);
+   setStage("confirmpin");
+  pinResetKey.current += 1;
+  };
+
+  const handleConfirmPin = async (pin) => {
+     if (pin !== pendingPin) {
+    setFlowError(t("pinMismatch"));
+    setStage("setpin");
+    pinResetKey.current += 1;
+    return;
+   }
     setBusy(true);
-    await callApi("setPin", { bay: selected, pin });
+    await callApi("setPin", { bay: selected, pin, phone: pendingPhone });
     setBusy(false);
     setToast(t("toastCheckin", selected));
     setStage(null);
     setSelected(null);
+    setPendingPhone("");
+    setPendingPin("");
+    setFlowError(null);
     refreshOne();
   };
 
@@ -343,11 +371,11 @@ export default function TrailLockerApp() {
     }
   };
 
-  const handleTempOpen = async (locker) => {
-    setBusy(true);
-    const result = await callApi("tempOpen", { bay: locker.id });
-    setBusy(false);
-    if (result === "ok") {
+    const handleTempOpen = async (locker) => {
+      setBusy(true);
+      const result = await callApi("tempOpen", { bay: locker.id });
+      setBusy(false);
+      if (result === "ok") {
       setToast(t("toastTempOpen", locker.id));
       setStage(null);
       setSelected(null);
@@ -355,14 +383,45 @@ export default function TrailLockerApp() {
     }
   };
 
-  const handleForgotPin = async (locker) => {
-    setBusy(true);
-    await callApi("forgotPin", { bay: locker.id });
-    setBusy(false);
-    setToast(t("toastForgot"));
-    setStage(null);
-    setSelected(null);
+    const handleForgotPin = () => {
+      setFlowError(null);
+      setStage("forgotphone");
+      pinResetKey.current += 1;
   };
+
+    const handleCheckPhoneSubmit = async (phone) => {
+      setBusy(true);
+      const result = await callApi("checkPhone", { bay: selected, phone });
+      setBusy(false);
+      if (result === "match") {
+      setStage("resetpin");
+      pinResetKey.current += 1;
+      } else {
+        setStage("phonefail");
+      }
+    };
+
+     const handleNewPinFirst = (pin) => {
+      setPendingPin(pin);
+      setStage("confirmresetpin");
+      pinResetKey.current += 1;
+    };
+
+     const handleNewPinConfirm = async (pin) => {
+      if (pin !== pendingPin) {
+      setFlowError(t("pinMismatch"));
+      setStage("resetpin");
+      pinResetKey.current += 1;
+      return;
+    }
+      setBusy(true);
+      await callApi("resetPin", { bay: selected, newPin: pin });
+      setBusy(false);
+      setToast(t("resetPinSuccess"));
+      setPendingPin("");
+      setFlowError(null);
+      setStage("menu");
+   };
 
   const acknowledgeAlert = async (locker) => {
     setBusy(true);
