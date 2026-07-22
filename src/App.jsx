@@ -200,7 +200,7 @@ function TimerDial({ progressMs, totalMs, active }) {
     </svg>
   );
 }
-function PinPad({ length = 4, onComplete, resetKey, disabled }) {
+function PinPad({ length = 4, onComplete, resetKey, disabled, masked = true }) {
   const [digits, setDigits] = useState([]);
   useEffect(() => setDigits([]), [resetKey]);
   const press = (d) => {
@@ -212,11 +212,30 @@ function PinPad({ length = 4, onComplete, resetKey, disabled }) {
   const backspace = () => setDigits((d) => d.slice(0, -1));
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "center", gap: 12, margin: "14px 0 18px" }}>
-        {Array.from({ length }).map((_, i) => (
-          <div key={i} style={{ width: 16, height: 16, borderRadius: "50%", border: `1.5px solid ${INK}`, background: i < digits.length ? INK : "transparent" }} />
-        ))}
-      </div>
+      {masked ? (
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, margin: "14px 0 18px", flexWrap: "wrap" }}>
+          {Array.from({ length }).map((_, i) => (
+            <div key={i} style={{ width: 16, height: 16, borderRadius: "50%", border: `1.5px solid ${INK}`, background: i < digits.length ? INK : "transparent" }} />
+          ))}
+        </div>
+      ) : (
+        <div
+          style={{
+            margin: "14px 0 18px",
+            padding: "12px 16px",
+            border: `1.5px solid ${LINE}`,
+            borderRadius: 8,
+            textAlign: "center",
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 24,
+            letterSpacing: 3,
+            color: digits.length > 0 ? INK : MUTE,
+            minHeight: 52,
+          }}
+        >
+          {digits.length > 0 ? digits.join("") : "—".repeat(length)}
+        </div>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, maxWidth: 240, margin: "0 auto", opacity: disabled ? 0.4 : 1 }}>
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
           <button key={d} disabled={disabled} onClick={() => press(d)} style={{ padding: "14px 0", fontSize: 18, fontFamily: "'JetBrains Mono', monospace", background: WHITE, border: `1px solid ${LINE}`, borderRadius: 8, color: INK }}>
@@ -564,7 +583,7 @@ export default function TrailLockerApp() {
             {stage === "setphone" && (
   <>
     <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("setPhonePrompt")}</p>
-    <PinPad length={10} resetKey={pinResetKey.current} onComplete={handleSetPhone} disabled={busy} />
+    <PinPad length={10} resetKey={pinResetKey.current} onComplete={handleSetPhone} disabled={busy} masked={false} />
   </>
 )}
 
@@ -586,7 +605,7 @@ export default function TrailLockerApp() {
             {stage === "forgotphone" && (
              <>
               <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("forgotPhonePrompt")}</p>
-              <PinPad length={10} resetKey={pinResetKey.current} onComplete={handleCheckPhoneSubmit} disabled={busy} />
+              <PinPad length={10} resetKey={pinResetKey.current} onComplete={handleCheckPhoneSubmit} disabled={busy} masked={false} />
              </>
           )}
 
