@@ -96,7 +96,7 @@ const TR = {
     verifyPrompt: (elapsed) => `In use for ${elapsed} — enter the PIN you set at check-in`,
     lockedMsg: (sec) => `⚠ Wrong PIN 3 times. Please wait ${sec}s`,
     pinError: (n) => `Incorrect PIN (${n}/3)`,
-    forgotPin: "Forgot PIN? Request to reset",
+    forgotPin: "Forgot PIN? Request a PIN reset.",
     menuPrompt: "Verified — choose an action",
     tempOpenBtn: "Temporary open (grab items) — timer continues",
     quotaSuffix: " · Quota reached",
