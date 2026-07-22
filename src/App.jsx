@@ -705,7 +705,7 @@ export default function TrailLockerApp() {
             {checkoutFlow.payMethod === "cash" && (
               <>
                 <div style={{ margin: "16px 0", padding: "18px 14px", border: `1.5px dashed ${LINE}`, borderRadius: 8, background: PAPER }}>
-                  <div style={{ fontSize: 30 }}>💵</div>
+                  <div style={{ fontSize: 30 }}>📥</div>
                   <div style={{ fontSize: 13, marginTop: 8, lineHeight: 1.6 }}>{t("cashInstruction", checkoutFlow.bill.price)}</div>
                 </div>
                 <button disabled={busy} onClick={finishCheckout} style={{ width: "100%", background: GREEN, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("cashConfirm")}</button>
