@@ -570,7 +570,7 @@ export default function TrailLockerApp() {
 
             {selectedLocker.status === "occupied" && (
               <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, padding: "8px 10px", borderRadius: 6, background: selectedLocker.security === "alert" ? "#FBEAD9" : "#EAF5EC", color: selectedLocker.security === "alert" ? "#8A4A0F" : "#256B34" }}>
-                <span>{selectedLocker.security === "alert" ? "⚠" : "🛡"}</span>
+                <span>{selectedLocker.security === "alert" ? "⚠" : "🗝️"}</span>
                 <span>{selectedLocker.security === "alert" ? t("securityAlertMsg") : t("securityOkMsg")}</span>
               </div>
             )}
@@ -722,7 +722,7 @@ export default function TrailLockerApp() {
           style={{ position: "fixed", inset: 0, background: "rgba(62,42,30,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 55, padding: 20 }}
         >
           <div style={{ background: WHITE, width: "100%", maxWidth: 360, borderRadius: 12, padding: "28px 24px", textAlign: "center" }}>
-            <div style={{ fontSize: 40, marginBottom: 6 }}>🚪</div>
+            <div style={{ fontSize: 40, marginBottom: 6 }}>❕</div>
             <div style={{ fontFamily: "'Fraunces', serif", fontSize: 19, fontWeight: 600, color: INK, marginBottom: 8 }}>
               {t("closeDoorTitle")}
             </div>
