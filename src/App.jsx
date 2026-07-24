@@ -500,7 +500,7 @@ export default function TrailLockerApp() {
             </button>
           ))}
         </div>
-        <div style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 600, color: WHITE, letterSpacing: 0.5, marginTop: 6 }}>{t("appTitle")}</div>
+        <div style={{ fontFamily: ""Edu VIC WA NT Hand", fontSize: 22, fontWeight: 600, color: WHITE, letterSpacing: 0.5, marginTop: 6 }}>{t("appTitle")}</div>
         <div style={{ fontSize: 10.5, color: connState === "error" ? "#E0791F" : "#B9B4AC", letterSpacing: 1, marginTop: 6, fontFamily: "'JetBrains Mono', monospace" }}>
           {connState === "connecting" ? t("connecting") : connState === "error" ? t("connectFail") : t("appSubtitle", lockers.length)}
         </div>
