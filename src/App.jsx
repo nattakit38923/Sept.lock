@@ -535,7 +535,7 @@ export default function TrailLockerApp() {
                   {isOccupied ? t("occupied") : t("available")}
                 </div>
                 {isOccupied && bill && (
-                  <div style={{ marginTop: 8, fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div style={{ marginTop: 8, fontFamily: "'Nunito', sans-serif" }}>
                     <div style={{ fontSize: 15, color: WHITE, fontWeight: 600 }}>{fmtElapsed(elapsed)}</div>
                     <div style={{ fontSize: 10, color: "#B9B4AC", marginTop: 2 }}>
                       {bill.tier} ฿{bill.price}
