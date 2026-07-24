@@ -21,7 +21,7 @@ const POLL_MS = 8000;
 
 const TR = {
   th: {
-    appTitle: "SEPT.LOCK",
+    appTitle: "Sept.Lock",
     appSubtitle: (n) => `${n} ช่อง · เชื่อมต่อระบบแล้ว`,
     currentTime: (t) => `เวลาปัจจุบัน ${t}`,
     alertBanner: (ids) => `ตรวจพบการเปิดตู้ผิดปกติที่ช่อง ${ids} — แตะที่ช่องเพื่อดูรายละเอียด`,
@@ -77,7 +77,7 @@ const TR = {
     resetPinSuccess: "ตั้งรหัสใหม่สำเร็จแล้ว",
   },
   en: {
-    appTitle: "SEPT.LOCK",
+    appTitle: "Sept.Lock",
     appSubtitle: (n) => `${n} bays · Connected to live system`,
     currentTime: (t) => `Now ${t}`,
     alertBanner: (ids) => `Unusual opening detected at bay ${ids} — tap the bay for details`,
@@ -485,7 +485,7 @@ export default function TrailLockerApp() {
   return (
     <div style={{ minHeight: "100vh", background: PAPER, fontFamily: "'Inter', system-ui, sans-serif", color: INK, padding: "0 0 40px" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&display=swap');
         * { box-sizing: border-box; }
         button { cursor: pointer; font-family: inherit; }
         button:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -500,7 +500,7 @@ export default function TrailLockerApp() {
             </button>
           ))}
         </div>
-        <div style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 600, color: WHITE, letterSpacing: 0.5, marginTop: 6 }}>{t("appTitle")}</div>
+        <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 22, fontWeight: 600, color: WHITE, letterSpacing: 0.5, marginTop: 6 }}>{t("appTitle")}</div>
         <div style={{ fontSize: 10.5, color: connState === "error" ? "#E0791F" : "#B9B4AC", letterSpacing: 1, marginTop: 6, fontFamily: "'JetBrains Mono', monospace" }}>
           {connState === "connecting" ? t("connecting") : connState === "error" ? t("connectFail") : t("appSubtitle", lockers.length)}
         </div>
