@@ -677,7 +677,7 @@ export default function TrailLockerApp() {
 
             {!checkoutFlow.payMethod && (
               <>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 36, fontWeight: 600, margin: "14px 0 2px" }}>฿{checkoutFlow.bill.price}</div>
+                <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 36, fontWeight: 600, margin: "14px 0 2px" }}>฿{checkoutFlow.bill.price}</div>
                 <div style={{ fontSize: 12, color: MUTE, marginBottom: 18 }}>{t("elapsedTier", fmtElapsed(checkoutFlow.elapsed), checkoutFlow.bill.tier)}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <button onClick={() => confirmPayment("qr")} style={{ background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("payQr")}</button>
@@ -697,7 +697,7 @@ export default function TrailLockerApp() {
   />
 </div>
                 <div style={{ fontSize: 12, color: MUTE, marginBottom: 4 }}>{t("scanQr")}</div>
-                <div style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 22, fontWeight: 600, marginBottom: 18 }}>฿{checkoutFlow.bill.price}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 600, marginBottom: 18 }}>฿{checkoutFlow.bill.price}</div>
                 <button disabled={busy} onClick={finishCheckout} style={{ width: "100%", background: GREEN, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("confirmPaid")}</button>
               </>
             )}
