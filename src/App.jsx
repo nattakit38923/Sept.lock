@@ -554,7 +554,7 @@ export default function TrailLockerApp() {
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             {RATE_INFO.map((p) => (
               <div key={p.key} style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 16, fontWeight: 600 }}>฿{p.price}</div>
+                <div style={{ fontFamily: "'Fraunces', serif", fontSize: 16, fontWeight: 600 }}>฿{p.price}</div>
                 <div style={{ fontSize: 11, color: MUTE }}>{p[lang]}</div>
               </div>
             ))}
