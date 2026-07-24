@@ -697,7 +697,7 @@ export default function TrailLockerApp() {
   />
 </div>
                 <div style={{ fontSize: 12, color: MUTE, marginBottom: 4 }}>{t("scanQr")}</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 600, marginBottom: 18 }}>฿{checkoutFlow.bill.price}</div>
+                <div style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 22, fontWeight: 600, marginBottom: 18 }}>฿{checkoutFlow.bill.price}</div>
                 <button disabled={busy} onClick={finishCheckout} style={{ width: "100%", background: GREEN, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("confirmPaid")}</button>
               </>
             )}
