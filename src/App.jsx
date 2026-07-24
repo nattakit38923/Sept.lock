@@ -485,7 +485,7 @@ export default function TrailLockerApp() {
   return (
     <div style={{ minHeight: "100vh", background: PAPER, fontFamily: "'Inter', system-ui, sans-serif", color: INK, padding: "0 0 40px" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&family=Edu+VIC+WA+NT+Hand,wght@400..700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600family=Edu+VIC+WA+NT+Hand:wght@400..700&&display=swap');
         * { box-sizing: border-box; }
         button { cursor: pointer; font-family: inherit; }
         button:disabled { opacity: 0.4; cursor: not-allowed; }
