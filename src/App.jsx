@@ -226,7 +226,7 @@ function PinPad({ length = 4, onComplete, resetKey, disabled, masked = true }) {
             border: `1.5px solid ${LINE}`,
             borderRadius: 8,
             textAlign: "center",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "'Nunito', sans-serif",
             fontSize: 24,
             letterSpacing: 3,
             color: digits.length > 0 ? INK : MUTE,
@@ -238,12 +238,12 @@ function PinPad({ length = 4, onComplete, resetKey, disabled, masked = true }) {
       )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, maxWidth: 240, margin: "0 auto", opacity: disabled ? 0.4 : 1 }}>
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
-          <button key={d} disabled={disabled} onClick={() => press(d)} style={{ padding: "14px 0", fontSize: 18, fontFamily: "'JetBrains Mono', monospace", background: WHITE, border: `1px solid ${LINE}`, borderRadius: 8, color: INK }}>
+          <button key={d} disabled={disabled} onClick={() => press(d)} style={{ padding: "14px 0", fontSize: 18, fontFamily: "'Nunito', sans-serif", background: WHITE, border: `1px solid ${LINE}`, borderRadius: 8, color: INK }}>
             {d}
           </button>
         ))}
         <div />
-        <button disabled={disabled} onClick={() => press("0")} style={{ padding: "14px 0", fontSize: 18, fontFamily: "'JetBrains Mono', monospace", background: WHITE, border: `1px solid ${LINE}`, borderRadius: 8, color: INK }}>0</button>
+        <button disabled={disabled} onClick={() => press("0")} style={{ padding: "14px 0", fontSize: 18, fontFamily: "'Nunito', sans-serif", background: WHITE, border: `1px solid ${LINE}`, borderRadius: 8, color: INK }}>0</button>
         <button disabled={disabled} onClick={backspace} style={{ padding: "14px 0", fontSize: 14, background: WHITE, border: `1px solid ${LINE}`, borderRadius: 8, color: MUTE }}>⌫</button>
       </div>
     </div>
