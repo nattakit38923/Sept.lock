@@ -677,7 +677,7 @@ export default function TrailLockerApp() {
 
             {!checkoutFlow.payMethod && (
               <>
-                <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 36, fontWeight: 600, margin: "14px 0 2px" }}>฿{checkoutFlow.bill.price}</div>
+                <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 36, fontWeight: 600, margin: "14px 0 2px" }}>฿ {checkoutFlow.bill.price}</div>
                 <div style={{ fontSize: 12, color: MUTE, marginBottom: 18 }}>{t("elapsedTier", fmtElapsed(checkoutFlow.elapsed), checkoutFlow.bill.tier)}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <button onClick={() => confirmPayment("qr")} style={{ background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("payQr")}</button>
