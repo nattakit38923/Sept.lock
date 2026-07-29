@@ -518,7 +518,7 @@ export default function TrailLockerApp() {
           </div>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           {lockers.map((locker) => {
             const isOccupied = locker.status === "occupied";
             const elapsed = isOccupied && locker.checkinAt ? now - locker.checkinAt : 0;
@@ -527,9 +527,9 @@ export default function TrailLockerApp() {
             const ringProgress = elapsed % 3600000;
 
             return (
-              <button key={locker.id} onClick={() => openLocker(locker)} style={{ background: isOccupied ? INK : WHITE, border: `2px solid ${locker.security === "alert" ? ALERT : INK}`, borderRadius: 4, padding: "16px 14px", textAlign: "left", position: "relative", boxShadow: locker.security === "alert" ? `0 0 0 3px ${ALERT}33` : "none" }}>
+              <button key={locker.id} onClick={() => openLocker(locker)} style={{ background: isOccupied ? INK : WHITE, border: `2px solid ${locker.security === "alert" ? ALERT : INK}`, borderRadius: 4, padding: "12px 10px", textAlign: "left", position: "relative", boxShadow: locker.security === "alert" ? `0 0 0 3px ${ALERT}33` : "none" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <span style={{ fontFamily: "'Fraunces', serif", fontSize: 26, fontWeight: 600, color: isOccupied ? WHITE : INK }}>{locker.id}</span>
+                  <span style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 600, color: isOccupied ? WHITE : INK }}>{locker.id}</span>
                 </div>
                 <div style={{ marginTop: 10, display: "inline-block", fontSize: 10, fontWeight: 600, letterSpacing: 0.5, padding: "3px 8px", borderRadius: 20, background: isOccupied ? RED : GREEN, color: WHITE }}>
                   {isOccupied ? t("occupied") : t("available")}
