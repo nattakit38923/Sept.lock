@@ -536,8 +536,8 @@ export default function TrailLockerApp() {
                 </div>
                 {isOccupied && bill && (
                   <div style={{ marginTop: 8, fontFamily: "'JetBrains Mono', monospace" }}>
-                    <div style={{ fontSize: 13, color: WHITE, fontWeight: 600 }}>{fmtElapsed(elapsed)}</div>
-                    <div style={{ fontSize: 9, color: "#B9B4AC", marginTop: 2 }}>
+                    <div style={{ fontSize: 15, color: WHITE, fontWeight: 600 }}>{fmtElapsed(elapsed)}</div>
+                    <div style={{ fontSize: 10, color: "#B9B4AC", marginTop: 2 }}>
                       {bill.tier} ฿{bill.price}
                       {locker.tempOpens > 0 && ` · ${t("tempOpenSuffix", locker.tempOpens, FREE_TEMP_OPENS)}`}
                     </div>
