@@ -504,10 +504,7 @@ export default function TrailLockerApp() {
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
       `}</style>
 
-      <div style={{ background: INK, padding: "22px 20px 18px", textAlign: "center", position: "relative",backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='150'%3E%3Cdefs%3E%3Cpath id='c' d='M40,20 C10,30 5,60 15,85 C28,115 60,130 95,125 C130,120 155,100 160,70 C165,40 145,15 110,10 C85,6 60,12 40,20 Z'/%3E%3C/defs%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='1.3'%3E%3Cuse href='%23c' stroke-opacity='0.05' transform='translate(85 68) scale(1.15) translate(-85 -68)'/%3E%3Cuse href='%23c' stroke-opacity='0.05'/%3E%3Cuse href='%23c' stroke-opacity='0.05' transform='translate(85 68) scale(0.68) translate(-85 -68)'/%3E%3Cuse href='%23c' stroke-opacity='0.05' transform='translate(90 60) scale(0.38) translate(-90 -60)'/%3E%3C/g%3E%3C/svg%3E\")",
-					backgroundRepeat: "no-repeat",
-					backgroundPosition: "center",
-					backgroundSize: "240px auto"
+      <div style={{ background: INK, padding: "22px 20px 18px", textAlign: "center", position: "relative"
  			}}>
         <div style={{ position: "absolute", top: 14, right: 16, display: "flex", background: "#2E2A24", borderRadius: 20, padding: 3, gap: 2 }}>
           {["th", "en"].map((code) => (
