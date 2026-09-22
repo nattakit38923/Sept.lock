@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwocfUyVBXLLSVtGCme-9kNm3pAMQvt-p0oVoCjFgzRS_lYSB2G9EHiAdTj_zPkR7Cw/exec";
 
 const INK = "#3E2A1E";      // น้ำตาลกาแฟเข้ม
-const PAPER = "#FAF6F0";    // ขาวออฟไวท์อุ่นๆ
+const PAPER = "#F1EEE6"; // ขาวอมเทาอ่อน ใกล้สีตู้เก็บกุญแจ
 const WHITE = "#FFFFFF";
 const GREEN = "#3E9B4F";
 const RED = "#B5533F";
