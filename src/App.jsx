@@ -75,6 +75,10 @@ const TR = {
     resetPinPrompt: "ตั้งรหัสใหม่ 4 หลัก",
     confirmResetPinPrompt: "กรอกรหัสใหม่อีกครั้งเพื่อยืนยัน",
     resetPinSuccess: "ตั้งรหัสใหม่สำเร็จแล้ว",
+    takeKeyTitle: "หยิบกุญแจแล้วปิดตู้ให้เรียบร้อย",
+		takeKeyBody: (id) => `หยิบกุญแจช่อง ${id} แล้วปิดตู้เก็บกุญแจให้สนิท`,
+		returnKeyTitle: "ชำระเงินเรียบร้อยแล้ว",
+		returnKeyBody: (id) => `แขวนกุญแจคืนที่ช่อง ${id} แล้วปิดตู้เก็บกุญแจให้สนิท`,
   },
   en: {
     appTitle: "Sept.Lock",
@@ -131,6 +135,11 @@ const TR = {
     resetPinPrompt: "Set a new 4-digit PIN",
     confirmResetPinPrompt: "Re-enter the new PIN to confirm",
     resetPinSuccess: "PIN reset successful",
+    takeKeyTitle: "Take your key and close the box",
+		takeKeyBody: (id) => `Take the key for bay ${id},then close the key box firmly.`,
+		returnKeyTitle: "Payment complete",
+		returnKeyBody: (id) => `Hang the key back at bay ${id} and close the key box firmly.`,
+
 
   },
 };
@@ -269,6 +278,7 @@ export default function TrailLockerApp() {
   const [pendingPhone, setPendingPhone] = useState("");
   const [pendingPin, setPendingPin] = useState("");
   const [flowError, setFlowError] = useState(null);
+  const [verifiedPin, setVerifiedPin] = useState("");
   const [toast, setToast] = useState(null);
   const pinResetKey = useRef(0);
 
@@ -364,6 +374,7 @@ export default function TrailLockerApp() {
     setBusy(false);
     setToast(t("toastCheckin", selected));
     setStage(null);
+    setCloseDoorReminder({ bay: selected, phase: "pickup" }); // ★ เพิ่ม
     setSelected(null);
     setPendingPhone("");
     setPendingPin("");
@@ -379,6 +390,7 @@ export default function TrailLockerApp() {
 
     if (result === "ok") {
       setPinError(null);
+      setVerifiedPin(pin);   // ★ เพิ่ม
       setStage("menu");
     } else if (result.startsWith("locked:")) {
       const sec = Number(result.split(":")[1]);
@@ -453,7 +465,7 @@ export default function TrailLockerApp() {
   const beginCheckout = (locker) => {
     const elapsed = now - locker.checkinAt;
     const bill = computeBill(elapsed, lang);
-    setCheckoutFlow({ locker, bill, payMethod: null, elapsed });
+    setCheckoutFlow({ locker, bill, payMethod: null, elapsed ,pin: verifiedPin});
     setStage(null);
     setSelected(null);
   };
@@ -461,13 +473,13 @@ export default function TrailLockerApp() {
 
   const finishCheckout = async () => {
      if (!checkoutFlow) return;
-     const { locker, bill, payMethod } = checkoutFlow;
+     const { locker, bill, payMethod ,pin } = checkoutFlow;
      setBusy(true);
-     await callApi("finishCheckout", { bay: locker.id, amount: bill.price, method: payMethod });
+     await callApi("finishCheckout", { bay: locker.id, amount: bill.price, method: payMethod ,pin });
      setBusy(false);
      setToast(t("toastDone", bill.price, locker.id));
      setCheckoutFlow(null);
-     setCloseDoorReminder({ bay: locker.id });
+     setCloseDoorReminder({ bay: locker.id, phase: "return" }); // ★ เพิ่ม phase
      refreshOne();
    };
   const acknowledgeCloseDoor = () => setCloseDoorReminder(null);
@@ -724,11 +736,9 @@ export default function TrailLockerApp() {
           <div style={{ background: WHITE, width: "100%", maxWidth: 360, borderRadius: 12, padding: "28px 24px", textAlign: "center" }}>
             <div style={{ fontSize: 40, marginBottom: 6 }}>❕</div>
             <div style={{ fontFamily: "'Fraunces', serif", fontSize: 19, fontWeight: 600, color: INK, marginBottom: 8 }}>
-              {t("closeDoorTitle")}
-            </div>
+              {closeDoorReminder.phase === "pickup" ? t("takeKeyTitle") : t("returnKeyTitle")}</div>
             <p style={{ fontSize: 13.5, color: MUTE, lineHeight: 1.7, marginBottom: 20 }}>
-              {t("closeDoorBody")}
-            </p>
+              {closeDoorReminder.phase === "pickup" ? t("takeKeyBody", closeDoorReminder.bay) : t("returnKeyBody", closeDoorReminder.bay)}</p>
             <button
               onClick={acknowledgeCloseDoor}
               style={{ width: "100%", background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}
