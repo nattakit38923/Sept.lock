@@ -504,8 +504,11 @@ export default function TrailLockerApp() {
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
       `}</style>
 
-      <div style={{ background: INK, padding: "22px 20px 18px", textAlign: "center", position: "relative",backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cpath d='M30,35 C10,48 8,78 22,100 C36,122 65,130 92,118 C119,106 128,78 116,52 C104,26 62,18 30,35 Z' stroke='%23FFFFFF' stroke-opacity='0.07' stroke-width='1.2' fill='none'/%3E%3Cpath d='M42,42 C28,52 26,72 36,88 C46,104 66,110 84,102 C102,94 108,74 100,56 C92,38 62,30 42,42 Z' stroke='%23FFFFFF' stroke-opacity='0.07' stroke-width='1.2' fill='none'/%3E%3Cpath d='M52,50 C42,57 41,70 48,80 C55,90 68,94 79,88 C90,82 94,68 88,56 C82,44 64,40 52,50 Z' stroke='%23FFFFFF' stroke-opacity='0.07' stroke-width='1.2' fill='none'/%3E%3Cpath d='M60,58 C54,62 54,68 58,73 C62,78 70,80 76,76 C82,72 84,64 80,58 C76,52 66,52 60,58 Z' stroke='%23FFFFFF' stroke-opacity='0.07' stroke-width='1.2' fill='none'/%3E%3C/svg%3E\")",
-backgroundRepeat: "repeat" }}>
+      <div style={{ background: INK, padding: "22px 20px 18px", textAlign: "center", position: "relative",backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='150'%3E%3Cdefs%3E%3Cpath id='c' d='M40,20 C10,30 5,60 15,85 C28,115 60,130 95,125 C130,120 155,100 160,70 C165,40 145,15 110,10 C85,6 60,12 40,20 Z'/%3E%3C/defs%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='1.3'%3E%3Cuse href='%23c' stroke-opacity='0.10' transform='translate(85 68) scale(1.15) translate(-85 -68)'/%3E%3Cuse href='%23c' stroke-opacity='0.10'/%3E%3Cuse href='%23c' stroke-opacity='0.10' transform='translate(85 68) scale(0.68) translate(-85 -68)'/%3E%3Cuse href='%23c' stroke-opacity='0.10' transform='translate(90 60) scale(0.38) translate(-90 -60)'/%3E%3C/g%3E%3C/svg%3E\")",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "-10px 15px",
+					backgroundSize: "240px auto"
+ 			}}>
         <div style={{ position: "absolute", top: 14, right: 16, display: "flex", background: "#2E2A24", borderRadius: 20, padding: 3, gap: 2 }}>
           {["th", "en"].map((code) => (
             <button key={code} onClick={() => setLang(code)} style={{ padding: "5px 12px", borderRadius: 16, border: "none", fontSize: 11, fontWeight: 600, background: lang === code ? WHITE : "transparent", color: lang === code ? INK : "#B9B4AC" }}>
