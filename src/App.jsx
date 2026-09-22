@@ -517,6 +517,9 @@ export default function TrailLockerApp() {
           {connState === "connecting" ? t("connecting") : connState === "error" ? t("connectFail") : t("appSubtitle", lockers.length)}
         </div>
       </div>
+      <svg viewBox="0 0 800 40" preserveAspectRatio="none" style={{ display: "block", width: "100%", height: 26 }}>
+  		<path d="M0,40 L0,18 L70,4 L140,24 L220,8 L300,28 L380,2 L460,20 L540,6 L620,26 L700,10 L800,22 L800,40 Z" fill={PAPER} />
+			</svg>
 
       <div style={{ maxWidth: 460, margin: "0 auto", padding: "22px 18px" }}>
         <div style={{ textAlign: "center", marginBottom: 18 }}>
