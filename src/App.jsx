@@ -504,7 +504,8 @@ export default function TrailLockerApp() {
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
       `}</style>
 
-      <div style={{ background: INK, padding: "22px 20px 18px", textAlign: "center", position: "relative" }}>
+      <div style={{ background: INK, padding: "22px 20px 18px", textAlign: "center", position: "relative",backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M0 60 Q30 40 60 60 T120 60' stroke='%23FFFFFF' stroke-opacity='0.06' stroke-width='1.5' fill='none'/%3E%3Cpath d='M0 90 Q30 70 60 90 T120 90' stroke='%23FFFFFF' stroke-opacity='0.05' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\")",
+  backgroundRepeat: "repeat" }}>
         <div style={{ position: "absolute", top: 14, right: 16, display: "flex", background: "#2E2A24", borderRadius: 20, padding: 3, gap: 2 }}>
           {["th", "en"].map((code) => (
             <button key={code} onClick={() => setLang(code)} style={{ padding: "5px 12px", borderRadius: 16, border: "none", fontSize: 11, fontWeight: 600, background: lang === code ? WHITE : "transparent", color: lang === code ? INK : "#B9B4AC" }}>
