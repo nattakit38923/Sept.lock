@@ -79,6 +79,8 @@ const TR = {
 		takeKeyBody: (id) => `หยิบกุญแจช่อง ${id} แล้วปิดตู้เก็บกุญแจให้สนิท`,
 		returnKeyTitle: "ชำระเงินเรียบร้อยแล้ว",
 		returnKeyBody: (id) => `แขวนกุญแจคืนที่ช่อง ${id} แล้วปิดตู้เก็บกุญแจให้สนิท`,
+    scanLineQr: "สแกน QR เพื่อติดต่อแอดมิน",
+
   },
   en: {
     appTitle: "Sept.Lock",
@@ -139,6 +141,7 @@ const TR = {
 		takeKeyBody: (id) => `Take the key for bay ${id},then close the key box firmly.`,
 		returnKeyTitle: "Payment complete",
 		returnKeyBody: (id) => `Hang the key back at bay ${id} and close the key box firmly.`,
+		scanLineQr: "Scan the QR code to add admin on LINE",
 
 
   },
