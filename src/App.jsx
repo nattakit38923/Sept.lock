@@ -623,12 +623,18 @@ export default function TrailLockerApp() {
           )}
 
             {stage === "phonefail" && (
-             <div style={{ marginTop: 16, textAlign: "center", padding: "18px 12px", background: "#FBEAD9", borderRadius: 8 }}>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>⚠</div>
-              <div style={{ fontSize: 13.5, color: "#8A4A0F", marginBottom: 6, fontWeight: 600 }}>{t("phoneNotMatch")}</div>
-              <div style={{ fontSize: 12.5, color: "#8A4A0F" }}>{t("contactAdminLine")}</div>
-             </div>
-           )}
+  						<div style={{ marginTop: 16, textAlign: "center", padding: "18px 12px", background: "#FBEAD9", borderRadius: 8 }}>
+    					<div style={{ fontSize: 28, marginBottom: 8 }}>⚠</div>
+    					<div style={{ fontSize: 13.5, color: "#8A4A0F", marginBottom: 6, fontWeight: 600 }}>{t("phoneNotMatch")}</div>
+    					<div style={{ fontSize: 12.5, color: "#8A4A0F", marginBottom: 14 }}>{t("contactAdminLine")}</div>
+    					<img
+      				src="/line-admin-qr.jpg"
+      				alt="LINE OA QR"
+      				style={{ width: 160, height: 160, border: `1px solid ${LINE}`, padding: 8, background: WHITE, borderRadius: 6 }}
+    				/>
+    			<div style={{ fontSize: 11.5, color: "#8A4A0F", marginTop: 8 }}>{t("scanLineQr")}</div>
+  			</div>
+			)}
 
             {stage === "resetpin" && (
              <>
