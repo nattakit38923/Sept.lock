@@ -80,7 +80,11 @@ const TR = {
 		returnKeyTitle: "ชำระเงินเรียบร้อยแล้ว",
 		returnKeyBody: (id) => `แขวนกุญแจคืนที่ช่อง ${id} แล้วปิดตู้เก็บกุญแจให้สนิท`,
     scanLineQr: "สแกน QR เพื่อติดต่อแอดมิน",
-
+		gotCodeBtn: "ได้รับรหัสจากแอดมินแล้ว",
+		enterCodePrompt: "กรอกรหัสที่แอดมินส่งให้",
+		codeWrong: "รหัสไม่ถูกต้อง",
+		codeExpired: "รหัสหมดอายุแล้ว",
+		codeMissing: "ยังไม่มีคำขอรหัสสำหรับช่องนี้ กรุณาติดต่อแอดมิน",
   },
   en: {
     appTitle: "Sept.Lock",
@@ -141,8 +145,12 @@ const TR = {
 		takeKeyBody: (id) => `Take the key for bay ${id},then close the key box firmly.`,
 		returnKeyTitle: "Payment complete",
 		returnKeyBody: (id) => `Hang the key back at bay ${id} and close the key box firmly.`,
-		scanLineQr: "Scan the QR code to add admin on LINE",
-
+		scanLineQr: "Scan the QR code to contact admin",
+		gotCodeBtn: "Have a new code?",
+		enterCodePrompt: "Enter the code that admin sent to you ",
+		codeWrong: "Incorrect code",
+		codeExpired: "Code expired.",
+		codeMissing: "No code set for this bay yet. Please contact admin first.",
 
   },
 };
@@ -434,6 +442,23 @@ export default function TrailLockerApp() {
         setStage("phonefail");
       }
     };
+  
+  const handleVerifyOverrideCode = async (code) => {
+  		setBusy(true);
+  		const result = await callApi("verifyOverrideCode", { bay: selected, code });
+  		setBusy(false);
+  		pinResetKey.current += 1;
+  		if (result === "ok") {
+    		setFlowError(null);
+    		setStage("resetpin");
+  		} else if (result === "wrong") {
+    		setFlowError(t("codeWrong"));
+  		} else if (result === "expired") {
+    		setFlowError(t("codeExpired"));
+  		} else {
+    		setFlowError(t("codeMissing"));
+  		}
+		};
 
    const handleNewPinFirst = (pin) => {
       setPendingPin(pin);
@@ -637,6 +662,20 @@ export default function TrailLockerApp() {
     				/>
     			<div style={{ fontSize: 11.5, color: "#8A4A0F", marginTop: 8 }}>{t("scanLineQr")}</div>
   			</div>
+            <button
+            onClick={() => { setStage("entercode"); pinResetKey.current += 1; setFlowError(null); }}
+            style={{ marginTop: 14, width: "100%", background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "11px 0", fontSize: 13, fontWeight: 600 }}
+            >
+            {t("gotCodeBtn")}
+            </button>
+			)}
+      
+      			{stage === "entercode" && (
+  					<>
+    					<p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("enterCodePrompt")}</p>
+    					{flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
+    					<PinPad length={6} resetKey={pinResetKey.current} onComplete={handleVerifyOverrideCode} disabled={busy} masked={false} />
+  					</>
 			)}
 
             {stage === "resetpin" && (
