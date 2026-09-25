@@ -20,6 +20,7 @@ const FREE_TEMP_OPENS = 2;
 const POLL_MS = 8000;
 const PIN_LENGTH = 6;
 const LINE_QR_SRC = "/line-admin-qr.jpg";
+const PROMPTPAY_QR_SRC = "/promptpay-qr.jpg";
 const LINE_OA_URL = "https://lin.ee/yNXtldL"; // ลิงก์เพิ่มเพื่อน LINE OA — เช็คว่าเปิดถูกบัญชี
 
 
@@ -330,7 +331,7 @@ export default function TrailLockerApp() {
   const [resetSource, setResetSource] = useState(null); // "phone" | "admin"
   const [phoneFailed, setPhoneFailed] = useState(false);  // มาหน้าติดต่อแอดมินเพราะกรอกเบอร์ผิดครบหรือไม่
   const pinResetKey = useRef(0);
-  const qrFileRef = useRef(null);
+  const imgCache = useRef({});
 
   const markOverrideRequested = (bay) =>
     setLockers((prev) => prev.map((l) => (l.id === bay ? { ...l, overrideRequested: true } : l)));
@@ -599,35 +600,44 @@ export default function TrailLockerApp() {
   };
 
   // โหลดรูป QR ไว้ล่วงหน้าตอนถึงหน้าติดต่อแอดมิน เพื่อให้กดแชร์/บันทึกได้ทันที (iOS ต้องเรียก share ในจังหวะที่กดปุ่ม)
-  useEffect(() => {
-    if (stage !== "phonefail" || qrFileRef.current) return;
-    fetch(LINE_QR_SRC)
+    const preloadImage = (src, filename) => {
+    if (imgCache.current[src]) return;
+    fetch(src)
       .then((r) => r.blob())
       .then((blob) => {
-        qrFileRef.current = new File([blob], "sept-lock-line-qr.jpg", { type: blob.type || "image/jpeg" });
+        imgCache.current[src] = new File([blob], filename, { type: blob.type || "image/jpeg" });
       })
       .catch(() => {});
+  };
+  useEffect(() => {
+    if (stage === "phonefail") preloadImage(LINE_QR_SRC, "sept-lock-line-qr.jpg");
   }, [stage]);
+  useEffect(() => {
+    if (checkoutFlow?.payMethod === "qr") preloadImage(PROMPTPAY_QR_SRC, "sept-lock-promptpay-qr.jpg");
+  }, [checkoutFlow?.payMethod]);
 
-  const saveLineQr = async () => {
-    const file = qrFileRef.current;
+  const saveImage = async (src, filename) => {
+    const file = imgCache.current[src];
     try {
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] }); // iPhone/Android: ขึ้น Share Sheet เลือก "บันทึกรูปภาพ"
+        await navigator.share({ files: [file] });
         return;
       }
-      const url = file ? URL.createObjectURL(file) : LINE_QR_SRC;
+      const url = file ? URL.createObjectURL(file) : src;
       const a = document.createElement("a");
       a.href = url;
-      a.download = "sept-lock-line-qr.jpg";
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
       if (file) setTimeout(() => URL.revokeObjectURL(url), 2000);
     } catch (err) {
-      if (err && err.name === "AbortError") return; // ลูกค้ากดยกเลิกเอง
-      window.open(LINE_QR_SRC, "_blank");
+      if (err && err.name === "AbortError") return;
+      window.open(src, "_blank");
     }
+  };
+  const saveLineQr = () => saveImage(LINE_QR_SRC, "sept-lock-line-qr.jpg");
+  const savePayQr = () => saveImage(PROMPTPAY_QR_SRC, "sept-lock-promptpay-qr.jpg");
   };
   const selectedLocker = lockers.find((l) => l.id === selected);
   const lockedNow = selectedLocker?.lockUntil && now < selectedLocker.lockUntil;
@@ -871,7 +881,7 @@ export default function TrailLockerApp() {
       )}
 
       {checkoutFlow && (
-        <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, background: "rgba(26,26,26,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 20 }} onClick={cancelCheckout}>
+        <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, background: "rgba(26,26,26,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 20 }}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: WHITE, width: "100%", maxWidth: 380, borderRadius: 10, padding: "24px 22px", textAlign: "center" }}>
             <div style={{ fontSize: 11, letterSpacing: 1.5, color: MUTE, fontWeight: 600 }}>{t("checkoutTitle", checkoutFlow.locker.id)}</div>
 
@@ -896,9 +906,17 @@ export default function TrailLockerApp() {
     style={{ width: 180, height: 180, border: `1px solid ${LINE}`, padding: 8, background: WHITE }}
   />
 </div>
+                <button
+  onClick={savePayQr}
+  style={{ width: "100%", background: WHITE, color: INK, border: `1.5px solid ${INK}`, borderRadius: 6, padding: "10px 0", fontSize: 13, fontWeight: 600, marginBottom: 6 }}
+>
+  ⬇ {t("saveQrBtn")}
+								</button>
+								<div style={{ fontSize: 11, color: MUTE, marginBottom: 14 }}>{t("saveQrHint")}</div>
                 <div style={{ fontSize: 12, color: MUTE, marginBottom: 4 }}>{t("scanQr")}</div>
                 <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 22, fontWeight: 600, marginBottom: 18 }}>฿ {checkoutFlow.bill.price}</div>
                 <button disabled={busy} onClick={finishCheckout} style={{ width: "100%", background: GREEN, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("confirmPaid")}</button>
+                <button onClick={cancelCheckout} style={{ marginTop: 14, background: "transparent", border: "none", color: MUTE, fontSize: 12 }}>{t("cancel")}</button>
               </>
             )}
 
@@ -909,6 +927,7 @@ export default function TrailLockerApp() {
                   <div style={{ fontSize: 13, marginTop: 8, lineHeight: 1.6 }}>{t("cashInstruction", checkoutFlow.bill.price)}</div>
                 </div>
                 <button disabled={busy} onClick={finishCheckout} style={{ width: "100%", background: GREEN, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("cashConfirm")}</button>
+                <button onClick={cancelCheckout} style={{ marginTop: 14, background: "transparent", border: "none", color: MUTE, fontSize: 12 }}>{t("cancel")}</button>
               </>
             )}
           </div>
