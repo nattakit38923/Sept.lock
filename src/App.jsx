@@ -18,6 +18,10 @@ const RATE_INFO = [
 ];
 const FREE_TEMP_OPENS = 2;
 const POLL_MS = 8000;
+const PIN_LENGTH = 6;
+const LINE_QR_SRC = "/line-admin-qr.jpg";
+const LINE_OA_URL = "https://line.me/R/ti/p/%40sept.lock"; // ลิงก์เพิ่มเพื่อน LINE OA — เช็คว่าเปิดถูกบัญชี
+
 
 const TR = {
   th: {
@@ -36,8 +40,8 @@ const TR = {
     securityOkMsg: "สถานะความปลอดภัย ปกติ",
     securityAlertMsg: "ตรวจพบการเปิดตู้ผิดปกติ — ตรวจสอบก่อนใช้งาน",
     acknowledge: "รับทราบแจ้งเตือน / ปิดเคส",
-    setPinPrompt: "— ตั้งรหัส 4 หลักไว้เพื่อดูสถานะและใช้เช็คเอาท์ —",
-    verifyPrompt: (elapsed) => `ใช้งานมาแล้ว ${elapsed} — กรอกรหัส 4 หลักที่ตั้งไว้ตอนเช็คอิน`,
+    setPinPrompt: "— ตั้งรหัส 6 หลักไว้เพื่อดูสถานะและใช้เช็คเอาท์ —",
+    verifyPrompt: (elapsed) => `ใช้งานมาแล้ว ${elapsed} — กรอกรหัส 6 หลักที่ตั้งไว้ตอนเช็คอิน`,
     lockedMsg: (sec) => `⚠ กรอกรหัสผิดครบ 3 ครั้ง กรุณารออีก ${sec} วินาที`,
     pinError: (n) => `รหัสไม่ถูกต้อง (${n}/3)`,
     forgotPin: "ลืมรหัส? ขอรีเซ็ตรหัสผ่าน",
@@ -66,7 +70,7 @@ const TR = {
     closeDoorBody: "กรุณาปิดประตูตู้ให้สนิท ระบบจะล็อกอัตโนมัติ",
     closeDoorAck: "เข้าใจแล้ว ปิดตู้เรียบร้อย",
     setPhonePrompt: "กรอกเบอร์โทรศัพท์ 10 หลัก สำหรับยืนยันตัวตน",
-    setPinPrompt2: "— ตั้งรหัส 4 หลักไว้เพื่อดูสถานะและใช้เช็คเอาท์ —",
+    setPinPrompt2: "— ตั้งรหัส 6 หลักไว้เพื่อดูสถานะและใช้เช็คเอาท์ —",
     confirmPinPrompt: "กรอกรหัสเดิมอีกครั้งเพื่อยืนยัน",
     pinMismatch: "รหัสไม่ตรงกัน กรุณาตั้งรหัสใหม่อีกครั้ง",
     forgotPhonePrompt: "กรอกเบอร์โทรศัพท์ที่ใช้ตอนเช็คอิน",
@@ -77,7 +81,7 @@ const TR = {
 		codeWrong: "รหัสไม่ถูกต้อง",
 		codeExpired: "รหัสหมดอายุแล้ว กรุณาติดต่อแอดมิน",
 		codeMissing: "ยังไม่มีรหัสสำหรับช่องนี้ กรุณาติดต่อแอดมิน",
-    resetPinPrompt: "ตั้งรหัสใหม่ 4 หลัก",
+    resetPinPrompt: "ตั้งรหัสใหม่ 6 หลัก",
     confirmResetPinPrompt: "กรอกรหัสใหม่อีกครั้งเพื่อยืนยัน",
     resetPinSuccess: "ตั้งรหัสใหม่สำเร็จแล้ว",
     takeKeyTitle: "หยิบกุญแจแล้วปิดตู้ให้เรียบร้อย",
@@ -85,11 +89,16 @@ const TR = {
 		returnKeyTitle: "ชำระเงินเรียบร้อยแล้ว",
 		returnKeyBody: (id) => `แขวนกุญแจคืนที่ช่อง ${id} แล้วปิดตู้เก็บกุญแจให้สนิท`,
     scanLineQr: "สแกน QR เพื่อติดต่อแอดมิน",
-		gotCodeBtn: "ได้รับรหัสจากแอดมินแล้ว",
-		enterCodePrompt: "กรอกรหัสที่แอดมินส่งให้",
-		codeWrong: "รหัสไม่ถูกต้อง",
-		codeExpired: "รหัสหมดอายุแล้ว",
-		codeMissing: "ยังไม่มีคำขอรหัสสำหรับช่องนี้ กรุณาติดต่อแอดมิน",
+    phoneRetry: (n) => `เบอร์โทรไม่ตรงกับที่ลงทะเบียนไว้ ลองใหม่ได้อีก ${n} ครั้ง`,
+    contactAdminLink: "ไม่แน่ใจเบอร์ที่ใช้? ติดต่อแอดมิน",
+    openLineBtn: "เปิด LINE คุยกับแอดมิน",
+    saveQrBtn: "บันทึกรูป QR ลงเครื่อง",
+    saveQrHint: "หรือกดค้างที่รูป QR แล้วเลือกบันทึกรูปภาพ",
+    overridePendingNote: "ช่องนี้รอรหัสยืนยันจากแอดมิน กรอกรหัส 6 หลักที่ได้รับทาง LINE",
+    noCodeYet: "ยังไม่ได้รับรหัส? ติดต่อแอดมิน",
+    resetExpired: "หมดเวลาตั้งรหัสใหม่ กรุณายืนยันตัวตนอีกครั้ง",
+    checkinOccupied: "ช่องนี้มีคนใช้งานแล้ว กรุณาเลือกช่องอื่น",
+    genericError: "ทำรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
   },
   en: {
     appTitle: "Sept.Lock",
@@ -107,8 +116,8 @@ const TR = {
     securityOkMsg: "Security status normal",
     securityAlertMsg: "Unusual opening detected — please check before use",
     acknowledge: "Acknowledge alert / close case",
-    setPinPrompt: "— Set a 4-digit PIN to check status and check out later —",
-    verifyPrompt: (elapsed) => `In use for ${elapsed} — enter the PIN you set at check-in`,
+    setPinPrompt: "— Set a 6-digit PIN to check status and check out later —",
+    verifyPrompt: (elapsed) => `In use for ${elapsed} — enter the 6-digit PIN you set at check-in`,
     lockedMsg: (sec) => `⚠ Wrong PIN 3 times. Please wait ${sec}s`,
     pinError: (n) => `Incorrect PIN (${n}/3)`,
     forgotPin: "Forgot PIN? Request a PIN reset.",
@@ -137,7 +146,7 @@ const TR = {
     closeDoorBody: "Please close the locker door firmly. It will lock automatically.",
     closeDoorAck: "Got it, door is closed",
     setPhonePrompt: "Enter your 10-digit phone number for identity verification.",
-    setPinPrompt2: "— Set a 4-digit PIN to check status and check out later —",
+    setPinPrompt2: "— Set a 6-digit PIN to check status and check out later —",
     confirmPinPrompt: "Re-enter the same PIN to confirm",
     pinMismatch: "PINs don't match. Please set your PIN again.",
     forgotPhonePrompt: "Enter the phone number you used at check-in",
@@ -148,7 +157,7 @@ const TR = {
 		codeWrong: "Incorrect code",
 		codeExpired: "Code has expired. Please contact admin for a new one.",
 		codeMissing: "No code has been issued for this bay. Please contact admin.",
-    resetPinPrompt: "Set a new 4-digit PIN",
+    resetPinPrompt: "Set a new 6-digit PIN",
     confirmResetPinPrompt: "Re-enter the new PIN to confirm",
     resetPinSuccess: "PIN reset successful",
     takeKeyTitle: "Take your key and close the box",
@@ -156,11 +165,16 @@ const TR = {
 		returnKeyTitle: "Payment complete",
 		returnKeyBody: (id) => `Hang the key back at bay ${id} and close the key box firmly.`,
 		scanLineQr: "Scan the QR code to contact admin",
-		gotCodeBtn: "Have a new code?",
-		enterCodePrompt: "Enter the code that admin sent to you ",
-		codeWrong: "Incorrect code",
-		codeExpired: "Code expired.",
-		codeMissing: "No code set for this bay yet. Please contact admin first.",
+    phoneRetry: (n) => `Phone number doesn't match. ${n} attempt(s) left.`,
+    contactAdminLink: "Not sure which number? Contact admin",
+    openLineBtn: "Open LINE to chat with admin",
+    saveQrBtn: "Save QR image",
+    saveQrHint: "Or long-press the QR image and choose Save Image",
+    overridePendingNote: "This bay is waiting for an admin code. Enter the 6-digit code you received on LINE.",
+    noCodeYet: "No code yet? Contact admin",
+    resetExpired: "Time to set a new PIN has expired. Please verify again.",
+    checkinOccupied: "This bay is already in use. Please pick another one.",
+    genericError: "Something went wrong. Please try again.",
 
   },
 };
@@ -215,6 +229,17 @@ async function callApi(action, params = {}) {
 async function fetchStatus() {
   const res = await fetch(`${SCRIPT_URL}?action=getStatus`);
   return res.json();
+}
+function mapRow(row) {
+  return {
+    id: row.bay,
+    status: row.occupied ? "occupied" : "available",
+    security: row.security || "ok",
+    checkinAt: row.checkin_at ? new Date(row.checkin_at).getTime() : null,
+    tempOpens: Number(row.temp_opens) || 0,
+    lockUntil: row.lock_until ? new Date(row.lock_until).getTime() : null,
+    overrideRequested: row.override_requested === true, // รอรหัสจากแอดมินอยู่ (เก็บใน Sheet ปิดหน้าแล้วก็ยังค้าง)
+  };
 }
 
 function TimerDial({ progressMs, totalMs, active }) {
@@ -301,7 +326,14 @@ export default function TrailLockerApp() {
   const [flowError, setFlowError] = useState(null);
   const [verifiedPin, setVerifiedPin] = useState("");
   const [toast, setToast] = useState(null);
+  const [resetToken, setResetToken] = useState("");   // ได้จาก backend หลังยืนยันเบอร์/รหัสแอดมินสำเร็จ
+  const [resetSource, setResetSource] = useState(null); // "phone" | "admin"
+  const [phoneFailed, setPhoneFailed] = useState(false);  // มาหน้าติดต่อแอดมินเพราะกรอกเบอร์ผิดครบหรือไม่
   const pinResetKey = useRef(0);
+  const qrFileRef = useRef(null);
+
+  const markOverrideRequested = (bay) =>
+    setLockers((prev) => prev.map((l) => (l.id === bay ? { ...l, overrideRequested: true } : l)));
 
   useEffect(() => {
     const tm = setInterval(() => setNow(Date.now()), 1000);
@@ -314,16 +346,7 @@ export default function TrailLockerApp() {
       try {
         const data = await fetchStatus();
         if (cancelled) return;
-        setLockers(
-          data.map((row) => ({
-            id: row.bay,
-            status: row.occupied ? "occupied" : "available",
-            security: row.security || "ok",
-            checkinAt: row.checkin_at ? new Date(row.checkin_at).getTime() : null,
-            tempOpens: Number(row.temp_opens) || 0,
-            lockUntil: row.lock_until ? new Date(row.lock_until).getTime() : null,
-          }))
-        );
+        setLockers(data.map(mapRow));
         setConnState("ok");
       } catch (err) {
         if (!cancelled) setConnState("error");
@@ -346,16 +369,7 @@ export default function TrailLockerApp() {
   const refreshOne = async () => {
     try {
       const data = await fetchStatus();
-      setLockers(
-        data.map((row) => ({
-          id: row.bay,
-          status: row.occupied ? "occupied" : "available",
-          security: row.security || "ok",
-          checkinAt: row.checkin_at ? new Date(row.checkin_at).getTime() : null,
-          tempOpens: Number(row.temp_opens) || 0,
-          lockUntil: row.lock_until ? new Date(row.lock_until).getTime() : null,
-        }))
-      );
+      setLockers(data.map(mapRow));
     } catch (e) {}
   };
 
@@ -365,8 +379,13 @@ export default function TrailLockerApp() {
    setFlowError(null);
    setPendingPhone("");
    setPendingPin("");
+   setResetToken("");
+   setResetSource(null);
+   setPhoneFailed(false);
    pinResetKey.current += 1;
-   setStage(locker.status === "available" ? "setphone" : "verify");
+   if (locker.status === "available") setStage("setphone");
+   else if (locker.overrideRequested) setStage("entercode"); // ค้างหน้าใส่รหัสแอดมินไว้ แม้ปิดหน้าไปแล้ว
+   else setStage("verify");
    setCheckoutFlow(null);
   };
 
@@ -391,8 +410,15 @@ export default function TrailLockerApp() {
     return;
    }
     setBusy(true);
-    await callApi("setPin", { bay: selected, pin, phone: pendingPhone });
+    const result = await callApi("setPin", { bay: selected, pin, phone: pendingPhone });
     setBusy(false);
+    if (result !== "ok") {
+      setToast(result === "occupied" ? t("checkinOccupied") : t("genericError"));
+      setStage(null);
+      setSelected(null);
+      refreshOne();
+      return;
+    }
     setToast(t("toastCheckin", selected));
     setStage(null);
     setCloseDoorReminder({ bay: selected, phase: "pickup" }); // ★ เพิ่ม
@@ -437,19 +463,40 @@ export default function TrailLockerApp() {
 
  const handleForgotPin = () => {
       setFlowError(null);
-      setStage("forgotphone");
       pinResetKey.current += 1;
+      setStage(selectedLocker?.overrideRequested ? "entercode" : "forgotphone");
+  };
+
+ const handleContactAdmin = async () => {
+      setBusy(true);
+      await callApi("requestOverride", { bay: selected });
+      setBusy(false);
+      markOverrideRequested(selected);
+      setPhoneFailed(false);
+      setFlowError(null);
+      setStage("phonefail");
   };
 
  const handleCheckPhoneSubmit = async (phone) => {
       setBusy(true);
       const result = await callApi("checkPhone", { bay: selected, phone });
       setBusy(false);
-      if (result === "match") {
-       setStage("resetpin");
-       pinResetKey.current += 1;
-      } else {
+      pinResetKey.current += 1;
+      if (result.startsWith("match:")) {
+        setResetToken(result.slice(6));
+        setResetSource("phone");
+        setFlowError(null);
+        setStage("resetpin");
+      } else if (result.startsWith("no_match:")) {
+        // กรอกผิดรอบแรก ให้ลองใหม่ได้อีกครั้ง
+        setFlowError(t("phoneRetry", Number(result.split(":")[1]) || 1));
+      } else if (result === "need_admin") {
+        setPhoneFailed(true);
+        markOverrideRequested(selected);
+        setFlowError(null);
         setStage("phonefail");
+      } else {
+        setFlowError(t("genericError"));
       }
     };
 
@@ -458,7 +505,9 @@ export default function TrailLockerApp() {
   		const result = await callApi("verifyOverrideCode", { bay: selected, code });
   		setBusy(false);
   		pinResetKey.current += 1;
-  		if (result === "ok") {
+  		if (result.startsWith("ok:")) {
+    		setResetToken(result.slice(3));
+    		setResetSource("admin");
     		setFlowError(null);
     		setStage("resetpin");
   		} else if (result === "wrong") {
@@ -484,12 +533,24 @@ export default function TrailLockerApp() {
       return;
     }
       setBusy(true);
-      await callApi("resetPin", { bay: selected, newPin: pin });
+      const result = await callApi("resetPin", { bay: selected, newPin: pin, token: resetToken });
       setBusy(false);
-      setToast(t("resetPinSuccess"));
+      pinResetKey.current += 1;
       setPendingPin("");
+      if (result !== "ok") {
+        // token หมดอายุ/ไม่ถูกต้อง ให้ยืนยันตัวตนใหม่ (รหัสแอดมินเดิมยังใช้ได้จนหมดอายุ)
+        setResetToken("");
+        setFlowError(result === "token_expired" || result === "invalid_token" ? t("resetExpired") : t("genericError"));
+        setStage(resetSource === "admin" ? "entercode" : "forgotphone");
+        return;
+      }
+      setResetToken("");
+      setVerifiedPin(pin); // ใช้ PIN ใหม่ตอนเช็คเอาท์ (เดิมยังส่ง PIN เก่าไป ทำให้เช็คเอาท์ไม่ผ่าน)
+      setLockers((prev) => prev.map((l) => (l.id === selected ? { ...l, overrideRequested: false } : l)));
+      setToast(t("resetPinSuccess"));
       setFlowError(null);
       setStage("menu");
+      refreshOne();
    };
 
   const acknowledgeAlert = async (locker) => {
@@ -513,8 +574,14 @@ export default function TrailLockerApp() {
      if (!checkoutFlow) return;
      const { locker, bill, payMethod ,pin } = checkoutFlow;
      setBusy(true);
-     await callApi("finishCheckout", { bay: locker.id, amount: bill.price, method: payMethod ,pin });
+     const result = await callApi("finishCheckout", { bay: locker.id, amount: bill.price, method: payMethod ,pin });
      setBusy(false);
+     if (result !== "ok") {
+       setToast(t("genericError"));
+       setCheckoutFlow(null);
+       refreshOne();
+       return;
+     }
      setToast(t("toastDone", bill.price, locker.id));
      setCheckoutFlow(null);
      setCloseDoorReminder({ bay: locker.id, phase: "return" }); // ★ เพิ่ม phase
@@ -527,6 +594,40 @@ export default function TrailLockerApp() {
     setSelected(null);
     setStage(null);
     setPinError(null);
+    setFlowError(null);
+    setResetToken("");
+  };
+
+  // โหลดรูป QR ไว้ล่วงหน้าตอนถึงหน้าติดต่อแอดมิน เพื่อให้กดแชร์/บันทึกได้ทันที (iOS ต้องเรียก share ในจังหวะที่กดปุ่ม)
+  useEffect(() => {
+    if (stage !== "phonefail" || qrFileRef.current) return;
+    fetch(LINE_QR_SRC)
+      .then((r) => r.blob())
+      .then((blob) => {
+        qrFileRef.current = new File([blob], "sept-lock-line-qr.jpg", { type: blob.type || "image/jpeg" });
+      })
+      .catch(() => {});
+  }, [stage]);
+
+  const saveLineQr = async () => {
+    const file = qrFileRef.current;
+    try {
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] }); // iPhone/Android: ขึ้น Share Sheet เลือก "บันทึกรูปภาพ"
+        return;
+      }
+      const url = file ? URL.createObjectURL(file) : LINE_QR_SRC;
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "sept-lock-line-qr.jpg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      if (file) setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+      if (err && err.name === "AbortError") return; // ลูกค้ากดยกเลิกเอง
+      window.open(LINE_QR_SRC, "_blank");
+    }
   };
   const selectedLocker = lockers.find((l) => l.id === selected);
   const lockedNow = selectedLocker?.lockUntil && now < selectedLocker.lockUntil;
@@ -642,21 +743,25 @@ export default function TrailLockerApp() {
              <>
               <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("setPinPrompt2")}</p>
               {flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
-              <PinPad length={4} resetKey={pinResetKey.current} onComplete={handleFirstPin} disabled={busy} />
+              <PinPad length={PIN_LENGTH} resetKey={pinResetKey.current} onComplete={handleFirstPin} disabled={busy} />
               </>
            )}
 
             {stage === "confirmpin" && (
              <>
                <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("confirmPinPrompt")}</p>
-               <PinPad length={4} resetKey={pinResetKey.current} onComplete={handleConfirmPin} disabled={busy} />
+               <PinPad length={PIN_LENGTH} resetKey={pinResetKey.current} onComplete={handleConfirmPin} disabled={busy} />
              </>
            )}
 
             {stage === "forgotphone" && (
              <>
               <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("forgotPhonePrompt")}</p>
+              {flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
               <PinPad length={10} resetKey={pinResetKey.current} onComplete={handleCheckPhoneSubmit} disabled={busy} masked={false} />
+              <button disabled={busy} onClick={handleContactAdmin} style={{ marginTop: 12, width: "100%", background: "transparent", border: "none", color: MUTE, fontSize: 12.5, textDecoration: "underline" }}>
+                {t("contactAdminLink")}
+              </button>
              </>
           )}
 
@@ -664,15 +769,30 @@ export default function TrailLockerApp() {
               <>
   						<div style={{ marginTop: 16, textAlign: "center", padding: "18px 12px", background: "#FBEAD9", borderRadius: 8 }}>
     					<div style={{ fontSize: 28, marginBottom: 8 }}>⚠</div>
-    					<div style={{ fontSize: 13.5, color: "#8A4A0F", marginBottom: 6, fontWeight: 600 }}>{t("phoneNotMatch")}</div>
+    					<div style={{ fontSize: 13.5, color: "#8A4A0F", marginBottom: 6, fontWeight: 600 }}>{phoneFailed ? t("phoneNotMatch") : t("contactAdminLine")}</div>
     					<div style={{ fontSize: 12.5, color: "#8A4A0F", marginBottom: 14 }}>{t("contactAdminLine")}</div>
     					<img
-      				src="/line-admin-qr.jpg"
+      				src={LINE_QR_SRC}
       				alt="LINE OA QR"
       				style={{ width: 160, height: 160, border: `1px solid ${LINE}`, padding: 8, background: WHITE, borderRadius: 6 }}
     				/>
     			<div style={{ fontSize: 11.5, color: "#8A4A0F", marginTop: 8 }}>{t("scanLineQr")}</div>
+    			<button
+    			  onClick={saveLineQr}
+    			  style={{ marginTop: 12, width: "100%", background: WHITE, color: INK, border: `1.5px solid ${INK}`, borderRadius: 6, padding: "10px 0", fontSize: 13, fontWeight: 600 }}
+    			>
+    			  ⬇ {t("saveQrBtn")}
+    			</button>
+    			<div style={{ fontSize: 11, color: "#8A4A0F", marginTop: 6 }}>{t("saveQrHint")}</div>
   			</div>
+            <a
+              href={LINE_OA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "block", marginTop: 12, width: "100%", background: "#06C755", color: WHITE, borderRadius: 6, padding: "11px 0", fontSize: 13, fontWeight: 600, textAlign: "center", textDecoration: "none" }}
+            >
+              {t("openLineBtn")}
+            </a>
             <button
             onClick={() => { setStage("entercode"); pinResetKey.current += 1; setFlowError(null); }}
             style={{ marginTop: 14, width: "100%", background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "11px 0", fontSize: 13, fontWeight: 600 }}
@@ -684,16 +804,23 @@ export default function TrailLockerApp() {
       
       			{stage === "entercode" && (
   					<>
+    					{selectedLocker.overrideRequested && (
+    					  <div style={{ marginTop: 14, padding: "10px 12px", background: "#FBEAD9", borderRadius: 6, fontSize: 12.5, color: "#8A4A0F", lineHeight: 1.6, textAlign: "center" }}>{t("overridePendingNote")}</div>
+    					)}
     					<p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("enterCodePrompt")}</p>
     					{flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
     					<PinPad length={6} resetKey={pinResetKey.current} onComplete={handleVerifyOverrideCode} disabled={busy} masked={false} />
+    					<button onClick={() => { setFlowError(null); setPhoneFailed(false); setStage("phonefail"); }} style={{ marginTop: 12, width: "100%", background: "transparent", border: "none", color: MUTE, fontSize: 12.5, textDecoration: "underline" }}>
+    					  {t("noCodeYet")}
+    					</button>
   					</>
 			)}
 
             {stage === "resetpin" && (
              <>
               <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("resetPinPrompt")}</p>
-              <PinPad length={4} resetKey={pinResetKey.current} onComplete={handleNewPinFirst} disabled={busy} />
+              {flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
+              <PinPad length={PIN_LENGTH} resetKey={pinResetKey.current} onComplete={handleNewPinFirst} disabled={busy} />
             </>
            )}
 
@@ -701,7 +828,7 @@ export default function TrailLockerApp() {
              <>
               <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("confirmResetPinPrompt")}</p>
               {flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
-              <PinPad length={4} resetKey={pinResetKey.current} onComplete={handleNewPinConfirm} disabled={busy} />
+              <PinPad length={PIN_LENGTH} resetKey={pinResetKey.current} onComplete={handleNewPinConfirm} disabled={busy} />
              </>
             )}
 
@@ -712,7 +839,7 @@ export default function TrailLockerApp() {
                   <div style={{ marginTop: 16, textAlign: "center", padding: "16px 10px", background: "#FBEAD9", borderRadius: 8, color: "#8A4A0F", fontSize: 13 }}>{t("lockedMsg", lockRemainSec)}</div>
                 ) : (
                   <>
-                    <PinPad resetKey={pinResetKey.current} onComplete={(pin) => handleVerifyPin(selectedLocker, pin)} disabled={busy} />
+                    <PinPad length={PIN_LENGTH} resetKey={pinResetKey.current} onComplete={(pin) => handleVerifyPin(selectedLocker, pin)} disabled={busy} />
                     {pinError && pinError !== "locked" && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginTop: -8, marginBottom: 8 }}>{pinError}</div>}
                   </>
                 )}
