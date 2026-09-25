@@ -20,7 +20,7 @@ const FREE_TEMP_OPENS = 2;
 const POLL_MS = 8000;
 const PIN_LENGTH = 6;
 const LINE_QR_SRC = "/line-admin-qr.jpg";
-const LINE_OA_URL = "https://line.me/R/ti/p/%40sept.lock"; // ลิงก์เพิ่มเพื่อน LINE OA — เช็คว่าเปิดถูกบัญชี
+const LINE_OA_URL = "https://lin.ee/yNXtldL"; // ลิงก์เพิ่มเพื่อน LINE OA — เช็คว่าเปิดถูกบัญชี
 
 
 const TR = {
