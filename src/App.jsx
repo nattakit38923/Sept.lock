@@ -770,7 +770,7 @@ export default function TrailLockerApp() {
   						<div style={{ marginTop: 16, textAlign: "center", padding: "18px 12px", background: "#FBEAD9", borderRadius: 8 }}>
     					<div style={{ fontSize: 28, marginBottom: 8 }}>⚠</div>
     					<div style={{ fontSize: 13.5, color: "#8A4A0F", marginBottom: 6, fontWeight: 600 }}>{phoneFailed ? t("phoneNotMatch") : t("contactAdminLine")}</div>
-    					<div style={{ fontSize: 12.5, color: "#8A4A0F", marginBottom: 14 }}>{t("contactAdminLine")}</div>
+    					{phoneFailed && <div style={{ fontSize: 12.5, color: "#8A4A0F", marginBottom: 14 }}>{t("contactAdminLine")}</div>}
     					<img
       				src={LINE_QR_SRC}
       				alt="LINE OA QR"
