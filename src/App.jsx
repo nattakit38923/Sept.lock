@@ -72,6 +72,11 @@ const TR = {
     forgotPhonePrompt: "กรอกเบอร์โทรศัพท์ที่ใช้ตอนเช็คอิน",
     phoneNotMatch: "เบอร์โทรไม่ตรงกับที่ลงทะเบียนไว้",
     contactAdminLine: "กรุณาติดต่อแอดมินผ่าน LINE OA @sept.lock เพื่อขอความช่วยเหลือ",
+		gotCodeBtn: "ได้รับรหัสจากแอดมินแล้ว",
+		enterCodePrompt: "กรอกรหัส 6 หลักที่ได้รับจากแอดมิน",
+		codeWrong: "รหัสไม่ถูกต้อง",
+		codeExpired: "รหัสหมดอายุแล้ว กรุณาติดต่อแอดมิน",
+		codeMissing: "ยังไม่มีรหัสสำหรับช่องนี้ กรุณาติดต่อแอดมิน",
     resetPinPrompt: "ตั้งรหัสใหม่ 4 หลัก",
     confirmResetPinPrompt: "กรอกรหัสใหม่อีกครั้งเพื่อยืนยัน",
     resetPinSuccess: "ตั้งรหัสใหม่สำเร็จแล้ว",
@@ -138,6 +143,11 @@ const TR = {
     forgotPhonePrompt: "Enter the phone number you used at check-in",
     phoneNotMatch: "Phone number doesn't match our records",
     contactAdminLine: "Please contact admin via LINE OA @sept.lock for help",
+		gotCodeBtn: "I received a code from admin",
+		enterCodePrompt: "Enter the 6-digit code from admin",
+		codeWrong: "Incorrect code",
+		codeExpired: "Code has expired. Please contact admin for a new one.",
+		codeMissing: "No code has been issued for this bay. Please contact admin.",
     resetPinPrompt: "Set a new 4-digit PIN",
     confirmResetPinPrompt: "Re-enter the new PIN to confirm",
     resetPinSuccess: "PIN reset successful",
@@ -449,6 +459,23 @@ export default function TrailLockerApp() {
   		setBusy(false);
   		pinResetKey.current += 1;
   		if (result === "ok") {
+    	setFlowError(null);
+    	setStage("resetpin");
+ 		 } else if (result === "expired") {
+    	setFlowError(t("codeExpired"));
+  	} else if (result === "no_code") {
+    	setFlowError(t("codeMissing"));
+  	} else {
+    	setFlowError(t("codeWrong"));
+ 		}
+	};
+
+  const handleVerifyOverrideCode = async (code) => {
+  		setBusy(true);
+  		const result = await callApi("verifyOverrideCode", { bay: selected, code });
+  		setBusy(false);
+  		pinResetKey.current += 1;
+  		if (result === "ok") {
     		setFlowError(null);
     		setStage("resetpin");
   		} else if (result === "wrong") {
@@ -651,6 +678,7 @@ export default function TrailLockerApp() {
           )}
 
             {stage === "phonefail" && (
+              <>
   						<div style={{ marginTop: 16, textAlign: "center", padding: "18px 12px", background: "#FBEAD9", borderRadius: 8 }}>
     					<div style={{ fontSize: 28, marginBottom: 8 }}>⚠</div>
     					<div style={{ fontSize: 13.5, color: "#8A4A0F", marginBottom: 6, fontWeight: 600 }}>{t("phoneNotMatch")}</div>
@@ -668,7 +696,17 @@ export default function TrailLockerApp() {
             >
             {t("gotCodeBtn")}
             </button>
+            </>
 			)}
+      
+      			{stage === "entercode" && (
+  					<>
+    					<p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("enterCodePrompt")}</p>
+    					{flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
+    					<PinPad length={6} resetKey={pinResetKey.current} onComplete={handleVerifyOverrideCode} disabled={busy} masked={false} />
+  					</>
+			)}
+
       
       			{stage === "entercode" && (
   					<>
