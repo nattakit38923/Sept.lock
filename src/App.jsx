@@ -638,7 +638,7 @@ export default function TrailLockerApp() {
   };
   const saveLineQr = () => saveImage(LINE_QR_SRC, "sept-lock-line-qr.jpg");
   const savePayQr = () => saveImage(PROMPTPAY_QR_SRC, "sept-lock-promptpay-qr.jpg");
-  };
+  
   const selectedLocker = lockers.find((l) => l.id === selected);
   const lockedNow = selectedLocker?.lockUntil && now < selectedLocker.lockUntil;
   const lockRemainSec = lockedNow ? Math.ceil((selectedLocker.lockUntil - now) / 1000) : 0;
