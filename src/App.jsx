@@ -690,15 +690,6 @@ export default function TrailLockerApp() {
   					</>
 			)}
 
-      
-      			{stage === "entercode" && (
-  					<>
-    					<p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("enterCodePrompt")}</p>
-    					{flowError && <div style={{ textAlign: "center", color: RED, fontSize: 12.5, marginBottom: 8 }}>{flowError}</div>}
-    					<PinPad length={6} resetKey={pinResetKey.current} onComplete={handleVerifyOverrideCode} disabled={busy} masked={false} />
-  					</>
-			)}
-
             {stage === "resetpin" && (
              <>
               <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("resetPinPrompt")}</p>
