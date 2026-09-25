@@ -452,23 +452,6 @@ export default function TrailLockerApp() {
         setStage("phonefail");
       }
     };
-  
-  const handleVerifyOverrideCode = async (code) => {
-  		setBusy(true);
-  		const result = await callApi("verifyOverrideCode", { bay: selected, code });
-  		setBusy(false);
-  		pinResetKey.current += 1;
-  		if (result === "ok") {
-    	setFlowError(null);
-    	setStage("resetpin");
- 		 } else if (result === "expired") {
-    	setFlowError(t("codeExpired"));
-  	} else if (result === "no_code") {
-    	setFlowError(t("codeMissing"));
-  	} else {
-    	setFlowError(t("codeWrong"));
- 		}
-	};
 
   const handleVerifyOverrideCode = async (code) => {
   		setBusy(true);
