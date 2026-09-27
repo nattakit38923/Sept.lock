@@ -16,9 +16,11 @@ const RATE_INFO = [
   { key: "r3", th: "3 ชม.", en: "3 hrs", price: 40 },
   { key: "r5", th: "5 ชม.+/วัน", en: "5 hrs+/day", price: 70 },
 ];
-const FREE_TEMP_OPENS = 2;
 const POLL_MS = 8000;
 const PIN_LENGTH = 6;
+const OPEN_EXPECT_MS = 10000; // เวลาโดยเฉลี่ยตั้งแต่สั่งจนตู้เปิดจริง (จาก log ~10 วิ)
+const OPEN_SLOW_MS = 30000;   // เกินนี้แล้วยังไม่เปิด ให้แสดงทางติดต่อแอดมิน
+const OPEN_POLL_MS = 2000;    // ระหว่างรอตู้เปิด เช็คสถานะถี่กว่าปกติ
 const LINE_QR_SRC = "/line-admin-qr.jpg";
 const PROMPTPAY_QR_SRC = "/promptpay-qr.jpg";
 const LINE_OA_URL = "https://lin.ee/yNXtldL"; // ลิงก์เพิ่มเพื่อน LINE OA — เช็คว่าเปิดถูกบัญชี
@@ -35,7 +37,6 @@ const TR = {
     ready: "พร้อมใช้งาน",
     connecting: "กำลังเชื่อมต่อระบบ...",
     connectFail: "เชื่อมต่อ backend ไม่สำเร็จ ลองใหม่อีกครั้ง",
-    tempOpenSuffix: (n, max) => `เปิดชั่วคราว ${n}/${max}`,
     rateTitle: "อัตราค่าบริการ",
     lockerLabel: (id) => `ช่อง ${id}`,
     securityOkMsg: "สถานะความปลอดภัย ปกติ",
@@ -47,10 +48,7 @@ const TR = {
     pinError: (n) => `รหัสไม่ถูกต้อง (${n}/3)`,
     forgotPin: "ลืมรหัส?",
     menuPrompt: "ยืนยันตัวตนสำเร็จ — เลือกดำเนินการ",
-    tempOpenBtn: "เปิดตู้กุญแจชั่วคราว",
-    quotaSuffix: " · ครบโควตาแล้ว",
     finishBtn: "จบการทำงาน — ไปหน้าชำระเงิน",
-    quotaNote: (max) => `เปิดชั่วคราวครบ ${max} ครั้งแล้ว`,
     close: "ปิด",
     checkoutTitle: (id) => `ช่อง ${id} · เช็คเอาท์`,
     elapsedTier: (elapsed, tier) => `ใช้เวลา ${elapsed} · คิดเป็น ${tier}`,
@@ -62,7 +60,6 @@ const TR = {
     cashInstruction: (amt) => `กรุณาหยอดเงิน ฿${amt} ลงในกล่องรับเงินสดข้างตู้`,
     cashConfirm: "ยืนยันการชำระเงิน — ปลดล็อก",
     toastCheckin: (id) => `เช็คอินช่อง ${id} แล้ว`,
-    toastTempOpen: (id) => `เปิดตู้ชั่วคราว ช่อง ${id} — เวลายังนับต่อ`,
     toastForgot: "ส่งคำขอรีเซ็ตรหัสไปยังแอดมินแล้ว รอการติดต่อกลับ",
     toastAck: (id) => `รับทราบแจ้งเตือนช่อง ${id} แล้ว`,
     toastDone: (amt, id) => `ทำรายการสำเร็จ ฿${amt} ช่อง ${id} ว่างแล้ว`,
@@ -86,15 +83,24 @@ const TR = {
     confirmResetPinPrompt: "กรอกรหัสใหม่อีกครั้งเพื่อยืนยัน",
     resetPinSuccess: "ตั้งรหัสใหม่สำเร็จแล้ว",
     takeKeyTitle: "หยิบกุญแจในกล่องเก็บกุญแจ",
+    openingTitle: "กำลังเปิดกล่องเก็บกุญแจ",
+    openingHint: "รอสักครู่..",
+    stepSent: "ส่งคำสั่งเปิดกล่อง",
+    stepUnlocking: "กล่องกำลังปลดล็อก",
+    stepReady: "กล่องเก็บกุญแจเปิดแล้ว",
+    keyNumber: (id) => `กุญแจหมายเลข ${id}`,
+    openSlowTitle: "กล่องเก็บกุญแจยังไม่เปิด?",
+    openSlowBody: "กรุณาติดต่อแอดมิน",
+    closeWindow: "ปิดหน้าต่างนี้",
 		takeKeyBody: (id) => `หยิบกุญแจหมายเลข ${id} แล้วปิดกล่องเก็บกุญแจให้สนิท`,
 		returnKeyTitle: "ชำระเงินเรียบร้อยแล้ว",
 		returnKeyBody: (id) => `แขวนกุญแจคืนที่ช่อง ${id} แล้วปิดกล่องเก็บกุญแจให้สนิท`,
     scanLineQr: "สแกน QR เพื่อติดต่อแอดมิน",
     phoneRetry: (n) => `เบอร์โทรไม่ตรงกับที่ลงทะเบียนไว้ ลองใหม่ได้อีก ${n} ครั้ง`,
-    contactAdminLink:"ลืมเบอร์ที่ลงทะเบียนไว้?",
+    contactAdminLink: "ลืมเบอร์ที่ลงทะเบียนไว้?",
     openLineBtn: "เปิด LINE เพื่อติดต่อแอดมิน",
     saveQrBtn: "บันทึกรูป QR code",
-    saveQrHint: "หรือกดค้างที่รูป QR แล้วเลือกบันทึกรูปภาพ",
+    saveQrHint: "หรือกดค้างที่รูป แล้วเลือกบันทึกรูปภาพ",
     overridePendingNote: "ช่องนี้รอรหัสยืนยันจากแอดมิน กรอกรหัส 6 หลักที่ได้รับทาง LINE",
     noCodeYet: "ยังไม่ได้รับรหัส? ติดต่อแอดมิน",
     resetExpired: "หมดเวลาตั้งรหัสใหม่ กรุณายืนยันตัวตนอีกครั้ง",
@@ -111,7 +117,6 @@ const TR = {
     ready: "Ready to use",
     connecting: "Connecting...",
     connectFail: "Could not reach backend. Please retry.",
-    tempOpenSuffix: (n, max) => `Temp open ${n}/${max}`,
     rateTitle: "Rates",
     lockerLabel: (id) => `Bay ${id}`,
     securityOkMsg: "Security status normal",
@@ -123,10 +128,7 @@ const TR = {
     pinError: (n) => `Incorrect PIN (${n}/3)`,
     forgotPin: "Forgot PIN?",
     menuPrompt: "Verified — choose an action",
-    tempOpenBtn: "Temporary open key box",
-    quotaSuffix: " · Quota reached",
     finishBtn: "Finish — go to payment",
-    quotaNote: (max) => `Free temporary opens (${max}) used up.`,
     close: "Close",
     checkoutTitle: (id) => `Bay ${id} · Check-out`,
     elapsedTier: (elapsed, tier) => `Duration ${elapsed} · Tier ${tier}`,
@@ -138,7 +140,6 @@ const TR = {
     cashInstruction: (amt) => `Please drop ฿${amt} into the cash box beside the locker`,
     cashConfirm: "Cash dropped — unlock",
     toastCheckin: (id) => `Checked in bay ${id}.`,
-    toastTempOpen: (id) => `Bay ${id} opened temporarily — timer still running`,
     toastForgot: "Reset request sent to admin. Please wait to be contacted.",
     toastAck: (id) => `Alert acknowledged for bay ${id}`,
     toastDone: (amt, id) => `Done. Paid ฿${amt}. Bay ${id} is now available.`,
@@ -162,7 +163,16 @@ const TR = {
     confirmResetPinPrompt: "Re-enter the new PIN to confirm",
     resetPinSuccess: "PIN reset successful",
     takeKeyTitle: "Take your key.",
-		takeKeyBody: (id) => `Take the key number ${id},then close the key box firmly.`,
+    openingTitle: "Opening the key box",
+    openingHint: "Wait a second..",
+    stepSent: "Unlock command sent",
+    stepUnlocking: "Key box unlocking",
+    stepReady: "Key box is open",
+    keyNumber: (id) => `Key no. ${id}`,
+    openSlowTitle: "Key box not open yet?",
+    openSlowBody: "please contact admin.",
+    closeWindow: "Close",
+		takeKeyBody: (id) => `Take key number ${id}, then close the key box firmly.`,
 		returnKeyTitle: "Payment complete",
 		returnKeyBody: (id) => `Hang the key back at bay ${id} and close the key box firmly.`,
 		scanLineQr: "Scan the QR code to contact admin",
@@ -237,9 +247,9 @@ function mapRow(row) {
     status: row.occupied ? "occupied" : "available",
     security: row.security || "ok",
     checkinAt: row.checkin_at ? new Date(row.checkin_at).getTime() : null,
-    tempOpens: Number(row.temp_opens) || 0,
     lockUntil: row.lock_until ? new Date(row.lock_until).getTime() : null,
-    overrideRequested: row.override_requested === true, // รอรหัสจากแอดมินอยู่ (เก็บใน Sheet ปิดหน้าแล้วก็ยังค้าง)
+    overrideRequested: row.override_requested === true || String(row.override_requested).toUpperCase() === "TRUE",
+    pendingUnlock: row.pending_unlock === true || String(row.pending_unlock).toUpperCase() === "TRUE", // รอรหัสจากแอดมินอยู่ (เก็บใน Sheet ปิดหน้าแล้วก็ยังค้าง)
   };
 }
 
@@ -321,7 +331,8 @@ export default function TrailLockerApp() {
   const [pinError, setPinError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [checkoutFlow, setCheckoutFlow] = useState(null);
-  const [closeDoorReminder, setCloseDoorReminder] = useState(null); // { bay }
+  // หน้าจอรอตู้เปิด: { bay, phase: "pickup"|"return", status: "sending"|"waiting"|"opened", startedAt }
+  const [closeDoorReminder, setCloseDoorReminder] = useState(null);
   const [pendingPhone, setPendingPhone] = useState("");
   const [pendingPin, setPendingPin] = useState("");
   const [flowError, setFlowError] = useState(null);
@@ -367,6 +378,33 @@ export default function TrailLockerApp() {
     return () => clearTimeout(tm);
   }, [toast]);
 
+  // ระหว่างรอตู้เปิด: เช็คทุก 2 วิ ว่า ESP32 รับคำสั่งแล้วหรือยัง (pending_unlock กลับเป็น FALSE = ปลดล็อกแล้ว)
+  useEffect(() => {
+    if (!closeDoorReminder || closeDoorReminder.status !== "waiting") return;
+    const bay = closeDoorReminder.bay;
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const data = await fetchStatus();
+        if (cancelled) return;
+        const rows = data.map(mapRow);
+        setLockers(rows);
+        const row = rows.find((l) => l.id === bay);
+        if (row && !row.pendingUnlock) {
+          setCloseDoorReminder((r) => (r && r.bay === bay ? { ...r, status: "opened" } : r));
+        }
+      } catch (e) {}
+    };
+    const iv = setInterval(check, OPEN_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
+  }, [closeDoorReminder?.status, closeDoorReminder?.bay]);
+
+  const startOpening = (bay, phase) => setCloseDoorReminder({ bay, phase, status: "sending", startedAt: null });
+  const openingSent = () => setCloseDoorReminder((r) => (r ? { ...r, status: "waiting", startedAt: Date.now() } : r));
+
   const refreshOne = async () => {
     try {
       const data = await fetchStatus();
@@ -411,18 +449,19 @@ export default function TrailLockerApp() {
     return;
    }
     setBusy(true);
+    startOpening(selected, "pickup"); // โชว์หน้ารอทันที ไม่ต้องรอ backend ตอบ
     const result = await callApi("setPin", { bay: selected, pin, phone: pendingPhone });
     setBusy(false);
     if (result !== "ok") {
+      setCloseDoorReminder(null);
       setToast(result === "occupied" ? t("checkinOccupied") : t("genericError"));
       setStage(null);
       setSelected(null);
       refreshOne();
       return;
     }
-    setToast(t("toastCheckin", selected));
+    openingSent();
     setStage(null);
-    setCloseDoorReminder({ bay: selected, phase: "pickup" }); // ★ เพิ่ม
     setSelected(null);
     setPendingPhone("");
     setPendingPin("");
@@ -447,18 +486,6 @@ export default function TrailLockerApp() {
     } else if (result.startsWith("wrong:")) {
       const n = Number(result.split(":")[1]);
       setPinError(t("pinError", n));
-    }
-  };
-
- const handleTempOpen = async (locker) => {
-      setBusy(true);
-      const result = await callApi("tempOpen", { bay: locker.id });
-      setBusy(false);
-      if (result === "ok") {
-      setToast(t("toastTempOpen", locker.id));
-      setStage(null);
-      setSelected(null);
-      refreshOne();
     }
   };
 
@@ -575,18 +602,18 @@ export default function TrailLockerApp() {
      if (!checkoutFlow) return;
      const { locker, bill, payMethod ,pin } = checkoutFlow;
      setBusy(true);
+     startOpening(locker.id, "return");
      const result = await callApi("finishCheckout", { bay: locker.id, amount: bill.price, method: payMethod ,pin });
      setBusy(false);
      if (result !== "ok") {
+       setCloseDoorReminder(null);
        setToast(t("genericError"));
        setCheckoutFlow(null);
        refreshOne();
        return;
      }
-     setToast(t("toastDone", bill.price, locker.id));
      setCheckoutFlow(null);
-     setCloseDoorReminder({ bay: locker.id, phase: "return" }); // ★ เพิ่ม phase
-     refreshOne();
+     openingSent();
    };
   const acknowledgeCloseDoor = () => setCloseDoorReminder(null);
   const cancelCheckout = () => setCheckoutFlow(null);
@@ -599,8 +626,9 @@ export default function TrailLockerApp() {
     setResetToken("");
   };
 
-  // โหลดรูป QR ไว้ล่วงหน้าตอนถึงหน้าติดต่อแอดมิน เพื่อให้กดแชร์/บันทึกได้ทันที (iOS ต้องเรียก share ในจังหวะที่กดปุ่ม)
-    const preloadImage = (src, filename) => {
+  // ---------- บันทึกรูป QR (ใช้ทั้ง QR LINE และ QR PromptPay) ----------
+  // โหลดรูปไว้ล่วงหน้า เพราะ iPhone ต้องเรียก share ทันทีที่กดปุ่ม ถ้ารอโหลดก่อนจะเด้ง error
+  const preloadImage = (src, filename) => {
     if (imgCache.current[src]) return;
     fetch(src)
       .then((r) => r.blob())
@@ -620,7 +648,7 @@ export default function TrailLockerApp() {
     const file = imgCache.current[src];
     try {
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
+        await navigator.share({ files: [file] }); // iPhone/Android: ขึ้น Share Sheet เลือก "บันทึกรูปภาพ"
         return;
       }
       const url = file ? URL.createObjectURL(file) : src;
@@ -632,13 +660,12 @@ export default function TrailLockerApp() {
       a.remove();
       if (file) setTimeout(() => URL.revokeObjectURL(url), 2000);
     } catch (err) {
-      if (err && err.name === "AbortError") return;
+      if (err && err.name === "AbortError") return; // ลูกค้ากดยกเลิกเอง
       window.open(src, "_blank");
     }
   };
   const saveLineQr = () => saveImage(LINE_QR_SRC, "sept-lock-line-qr.jpg");
   const savePayQr = () => saveImage(PROMPTPAY_QR_SRC, "sept-lock-promptpay-qr.jpg");
-  
   const selectedLocker = lockers.find((l) => l.id === selected);
   const lockedNow = selectedLocker?.lockUntil && now < selectedLocker.lockUntil;
   const lockRemainSec = lockedNow ? Math.ceil((selectedLocker.lockUntil - now) / 1000) : 0;
@@ -701,7 +728,6 @@ export default function TrailLockerApp() {
                     <div style={{ fontSize: 15, color: WHITE, fontWeight: 600 }}>{fmtElapsed(elapsed)}</div>
                     <div style={{ fontSize: 10, color: "#B9B4AC", marginTop: 2 }}>
                       {bill.tier} ฿{bill.price}
-                      {locker.tempOpens > 0 && ` · ${t("tempOpenSuffix", locker.tempOpens, FREE_TEMP_OPENS)}`}
                     </div>
                   </div>
                 )}
@@ -863,15 +889,10 @@ export default function TrailLockerApp() {
               <>
                 <p style={{ fontSize: 13, color: MUTE, marginTop: 14, lineHeight: 1.6, textAlign: "center" }}>{t("menuPrompt")}</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
-                  <button disabled={busy || selectedLocker.tempOpens >= FREE_TEMP_OPENS} onClick={() => handleTempOpen(selectedLocker)} style={{ background: WHITE, color: INK, border: `2px solid ${INK}`, borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>
-                    {t("tempOpenBtn")}
-                    {selectedLocker.tempOpens >= FREE_TEMP_OPENS && t("quotaSuffix")}
-                  </button>
                   <button disabled={busy} onClick={() => beginCheckout(selectedLocker)} style={{ background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>
                     {t("finishBtn")}
                   </button>
                 </div>
-                {selectedLocker.tempOpens >= FREE_TEMP_OPENS && <p style={{ fontSize: 11.5, color: MUTE, marginTop: 10, textAlign: "center" }}>{t("quotaNote", FREE_TEMP_OPENS)}</p>}
               </>
             )}
 
@@ -901,18 +922,18 @@ export default function TrailLockerApp() {
               <>
                 <div style={{ display: "flex", justifyContent: "center", margin: "16px 0" }}>
   <img
-    src="/promptpay-qr.jpg"
+    src={PROMPTPAY_QR_SRC}
     alt="PromptPay QR"
     style={{ width: 180, height: 180, border: `1px solid ${LINE}`, padding: 8, background: WHITE }}
   />
 </div>
                 <button
-  onClick={savePayQr}
-  style={{ width: "100%", background: WHITE, color: INK, border: `1.5px solid ${INK}`, borderRadius: 6, padding: "10px 0", fontSize: 13, fontWeight: 600, marginBottom: 6 }}
->
-  ⬇ {t("saveQrBtn")}
-								</button>
-								<div style={{ fontSize: 11, color: MUTE, marginBottom: 14 }}>{t("saveQrHint")}</div>
+                  onClick={savePayQr}
+                  style={{ width: "100%", background: WHITE, color: INK, border: `1.5px solid ${INK}`, borderRadius: 6, padding: "10px 0", fontSize: 13, fontWeight: 600, marginBottom: 6 }}
+                >
+                  ⬇ {t("saveQrBtn")}
+                </button>
+                <div style={{ fontSize: 11, color: MUTE, marginBottom: 14 }}>{t("saveQrHint")}</div>
                 <div style={{ fontSize: 12, color: MUTE, marginBottom: 4 }}>{t("scanQr")}</div>
                 <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 22, fontWeight: 600, marginBottom: 18 }}>฿ {checkoutFlow.bill.price}</div>
                 <button disabled={busy} onClick={finishCheckout} style={{ width: "100%", background: GREEN, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}>{t("confirmPaid")}</button>
@@ -934,27 +955,102 @@ export default function TrailLockerApp() {
         </div>
       )}
 
-            {closeDoorReminder && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          style={{ position: "fixed", inset: 0, background: "rgba(62,42,30,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 55, padding: 20 }}
-        >
-          <div style={{ background: WHITE, width: "100%", maxWidth: 360, borderRadius: 12, padding: "28px 24px", textAlign: "center" }}>
-            <div style={{ fontSize: 40, marginBottom: 6 }}>❕</div>
-            <div style={{ fontFamily: "'Fraunces', serif", fontSize: 19, fontWeight: 600, color: INK, marginBottom: 8 }}>
-              {closeDoorReminder.phase === "pickup" ? t("takeKeyTitle") : t("returnKeyTitle")}</div>
-            <p style={{ fontSize: 13.5, color: MUTE, lineHeight: 1.7, marginBottom: 20 }}>
-              {closeDoorReminder.phase === "pickup" ? t("takeKeyBody", closeDoorReminder.bay) : t("returnKeyBody", closeDoorReminder.bay)}</p>
-            <button
-              onClick={acknowledgeCloseDoor}
-              style={{ width: "100%", background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}
-            >
-              {t("closeDoorAck")}
-            </button>
+      {closeDoorReminder && (() => {
+        const r = closeDoorReminder;
+        const opened = r.status === "opened";
+        const elapsed = r.startedAt ? now - r.startedAt : 0;
+        const slow = r.status === "waiting" && elapsed > OPEN_SLOW_MS;
+        // แถบความคืบหน้า: ประมาณจากเวลาเฉลี่ย ค้างไว้ที่ 92% จนกว่าตู้จะยืนยันว่าเปิดจริง
+        const progress = opened ? 100 : r.status === "sending" ? 8 : Math.min(15 + (elapsed / OPEN_EXPECT_MS) * 77, 92);
+        const stepIdx = opened ? 3 : r.status === "waiting" ? 1 : 0;
+        const steps = [t("stepSent"), t("stepUnlocking"), t("stepReady")];
+        const doneTitle = r.phase === "pickup" ? t("takeKeyTitle") : t("returnKeyTitle");
+        const doneBody = r.phase === "pickup" ? t("takeKeyBody", r.bay) : t("returnKeyBody", r.bay);
+        return (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-live="polite"
+            style={{ position: "fixed", inset: 0, background: "rgba(62,42,30,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 55, padding: 20 }}
+          >
+            <style>{`
+              @keyframes septPulse { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.08); opacity: .75 } }
+              @keyframes septPop { 0% { transform: scale(.6); opacity: 0 } 70% { transform: scale(1.1) } 100% { transform: scale(1); opacity: 1 } }
+            `}</style>
+            <div style={{ background: WHITE, width: "100%", maxWidth: 360, borderRadius: 12, padding: "28px 24px", textAlign: "center" }}>
+              {/* ไอคอน: กุญแจเต้นตอนรอ / เครื่องหมายถูกเด้งตอนเปิดแล้ว */}
+              <div
+                style={{
+                  width: 72, height: 72, margin: "0 auto 14px", borderRadius: "50%",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34,
+                  background: opened ? GREEN : PAPER, color: WHITE,
+                  animation: opened ? "septPop .45s ease-out" : "septPulse 1.4s ease-in-out infinite",
+                }}
+              >
+                {opened ? "✓" : "🔑"}
+              </div>
+
+              <div style={{ fontFamily: "'Fraunces', serif", fontSize: 19, fontWeight: 600, color: INK, marginBottom: 6 }}>
+                {opened ? doneTitle : t("openingTitle")}
+              </div>
+
+              {/* หมายเลขกุญแจตัวใหญ่ ให้ลูกค้าหาได้ทันทีตอนเปิดตู้ */}
+              <div style={{ display: "inline-block", margin: "6px 0 12px", padding: "6px 16px", borderRadius: 20, background: opened ? INK : LINE, color: opened ? WHITE : INK, fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 600 }}>
+                {t("keyNumber", r.bay)}
+              </div>
+
+              {!opened && (
+                <>
+                  <p style={{ fontSize: 13, color: MUTE, lineHeight: 1.6, margin: "0 0 14px" }}>{t("openingHint")}</p>
+                  <div style={{ height: 6, background: LINE, borderRadius: 3, overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ width: `${progress}%`, height: "100%", background: INK, borderRadius: 3, transition: "width 1s linear" }} />
+                  </div>
+                  <div style={{ textAlign: "left", display: "inline-block", marginBottom: 4 }}>
+                    {steps.map((label, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, padding: "3px 0", color: i <= stepIdx ? INK : MUTE, fontWeight: i === stepIdx ? 600 : 400 }}>
+                        <span style={{ width: 18, textAlign: "center", color: i < stepIdx ? GREEN : i === stepIdx ? INK : MUTE }}>
+                          {i < stepIdx ? "✓" : i === stepIdx ? "●" : "○"}
+                        </span>
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {slow && (
+                <div style={{ marginTop: 14, padding: "12px", background: "#FBEAD9", borderRadius: 8, color: "#8A4A0F", fontSize: 12.5, lineHeight: 1.6 }}>
+                  <div style={{ fontWeight: 600, marginBottom: 4 }}>{t("openSlowTitle")}</div>
+                  {t("openSlowBody")}
+                  <a
+                    href={LINE_OA_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: "block", marginTop: 10, background: "#06C755", color: WHITE, borderRadius: 6, padding: "9px 0", fontWeight: 600, textDecoration: "none" }}
+                  >
+                    {t("openLineBtn")}
+                  </a>
+                  <button onClick={acknowledgeCloseDoor} style={{ marginTop: 8, background: "transparent", border: "none", color: "#8A4A0F", fontSize: 12, textDecoration: "underline" }}>
+                    {t("closeWindow")}
+                  </button>
+                </div>
+              )}
+
+              {opened && (
+                <>
+                  <p style={{ fontSize: 13.5, color: MUTE, lineHeight: 1.7, marginBottom: 20 }}>{doneBody}</p>
+                  <button
+                    onClick={acknowledgeCloseDoor}
+                    style={{ width: "100%", background: INK, color: WHITE, border: "none", borderRadius: 6, padding: "13px 0", fontSize: 14, fontWeight: 600 }}
+                  >
+                    {t("closeDoorAck")}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
 
       {toast && (
