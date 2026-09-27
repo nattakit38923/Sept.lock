@@ -84,13 +84,13 @@ const TR = {
     resetPinSuccess: "ตั้งรหัสใหม่สำเร็จแล้ว",
     takeKeyTitle: "หยิบกุญแจในกล่องเก็บกุญแจ",
     openingTitle: "กำลังเปิดกล่องเก็บกุญแจ",
-    openingHint: "รอสักครู่..",
+    openingHint: "ใช้เวลาประมาณ 10 วินาที ยังไม่ต้องดึงฝากล่อง",
     stepSent: "ส่งคำสั่งเปิดกล่อง",
     stepUnlocking: "กล่องกำลังปลดล็อก",
     stepReady: "กล่องเก็บกุญแจเปิดแล้ว",
     keyNumber: (id) => `กุญแจหมายเลข ${id}`,
     openSlowTitle: "กล่องเก็บกุญแจยังไม่เปิด?",
-    openSlowBody: "กรุณาติดต่อแอดมิน",
+    openSlowBody: "ระบบยังรอกล่องเปิดอยู่ ถ้ารอเกิน 1 นาทีแล้วยังไม่เปิด กรุณาติดต่อแอดมิน",
     closeWindow: "ปิดหน้าต่างนี้",
 		takeKeyBody: (id) => `หยิบกุญแจหมายเลข ${id} แล้วปิดกล่องเก็บกุญแจให้สนิท`,
 		returnKeyTitle: "ชำระเงินเรียบร้อยแล้ว",
@@ -100,7 +100,7 @@ const TR = {
     contactAdminLink: "ลืมเบอร์ที่ลงทะเบียนไว้?",
     openLineBtn: "เปิด LINE เพื่อติดต่อแอดมิน",
     saveQrBtn: "บันทึกรูป QR code",
-    saveQrHint: "หรือกดค้างที่รูป แล้วเลือกบันทึกรูปภาพ",
+    saveQrHint: "หรือกดค้างที่รูป QR แล้วเลือกบันทึกรูปภาพ",
     overridePendingNote: "ช่องนี้รอรหัสยืนยันจากแอดมิน กรอกรหัส 6 หลักที่ได้รับทาง LINE",
     noCodeYet: "ยังไม่ได้รับรหัส? ติดต่อแอดมิน",
     resetExpired: "หมดเวลาตั้งรหัสใหม่ กรุณายืนยันตัวตนอีกครั้ง",
@@ -164,13 +164,13 @@ const TR = {
     resetPinSuccess: "PIN reset successful",
     takeKeyTitle: "Take your key.",
     openingTitle: "Opening the key box",
-    openingHint: "Wait a second..",
+    openingHint: "This takes about 10 seconds. No need to pull the door yet.",
     stepSent: "Unlock command sent",
     stepUnlocking: "Key box unlocking",
     stepReady: "Key box is open",
     keyNumber: (id) => `Key no. ${id}`,
     openSlowTitle: "Key box not open yet?",
-    openSlowBody: "please contact admin.",
+    openSlowBody: "Still waiting for the key box. If it hasn't opened after a minute, please contact admin.",
     closeWindow: "Close",
 		takeKeyBody: (id) => `Take key number ${id}, then close the key box firmly.`,
 		returnKeyTitle: "Payment complete",
@@ -251,6 +251,34 @@ function mapRow(row) {
     overrideRequested: row.override_requested === true || String(row.override_requested).toUpperCase() === "TRUE",
     pendingUnlock: row.pending_unlock === true || String(row.pending_unlock).toUpperCase() === "TRUE", // รอรหัสจากแอดมินอยู่ (เก็บใน Sheet ปิดหน้าแล้วก็ยังค้าง)
   };
+}
+
+// ---------- โลโก้ SEPT.LOCK (แม่กุญแจรูปตัว S) — ห่วงแยกชิ้นเพื่อทำเอฟเฟกต์เปิด ----------
+const LOGO_SHACKLE = "M467 379 464 385 464 387 457 400 450 420 450 424 449 425 449 429 448 430 447 438 446 439 446 444 445 445 445 453 444 454 444 484 471 493 474 493 484 497 487 497 509 505 522 508 522 452 523 451 526 433 529 427 530 422 539 405 550 391 565 377 577 369 589 363 603 358 611 357 612 356 617 356 618 355 643 355 644 356 650 356 670 362 684 369 702 382 720 402 730 420 735 434 737 446 738 447 738 455 739 456 739 541 742 543 796 561 799 561 814 567 816 566 816 453 815 452 815 443 814 442 813 430 812 429 811 420 806 403 804 400 802 392 793 374 789 369 783 358 772 344 749 322 727 307 707 297 697 294 694 292 673 287 672 286 669 286 668 285 663 285 656 283 645 283 644 282 611 283 610 284 598 285 597 286 578 290 559 298 557 298 539 307 515 323 489 348 476 365Z";
+const LOGO_BODY = "M447 516 434 530 417 555 404 582 398 601 398 605 399 606 408 609 411 609 415 611 418 611 431 616 448 620 455 623 458 623 465 626 475 628 485 632 495 634 515 641 518 641 532 646 535 646 542 649 552 651 565 656 568 656 582 661 585 661 598 666 605 667 614 671 621 672 648 681 651 681 685 692 695 694 705 698 708 698 718 702 721 702 739 709 754 719 765 730 772 740 778 752 782 765 783 774 784 775 784 782 785 783 785 806 784 807 784 816 783 817 782 826 777 841 767 858 756 870 746 878 728 887 714 890 713 891 704 891 703 892 579 892 578 891 570 891 569 890 565 890 561 888 558 888 549 885 535 878 520 867 512 858 505 848 499 835 497 828 497 824 496 823 496 818 495 817 495 722 494 721 494 711 483 707 473 705 457 699 447 697 437 693 423 690 411 685 408 685 401 682 392 680 392 805 393 806 393 818 394 819 395 832 396 833 396 837 397 838 397 842 400 850 400 853 408 875 421 899 440 923 449 932 469 948 484 957 497 963 521 971 525 971 526 972 530 972 536 974 541 974 542 975 547 975 548 976 564 976 565 977 716 977 717 976 730 976 731 975 745 974 746 973 755 972 767 968 770 968 789 961 814 947 831 934 852 912 862 898 872 880 872 878 879 863 881 854 883 850 884 842 886 837 886 832 887 831 888 817 889 816 889 767 888 766 888 756 887 755 887 748 886 747 886 741 885 740 883 726 873 697 863 678 852 663 839 650 821 637 798 625 796 625 777 616 759 610 756 610 746 606 743 606 733 602 730 602 720 598 710 596 697 591 684 588 674 584 664 582 654 578 647 577 615 566 598 562 559 549 542 545 523 538 516 537 474 523 461 520 455 517Z";
+const LOGO_KEYHOLE = "M626 745 615 750 608 758 605 766 605 772 604 773 604 835 606 841 610 847 615 851 625 855 637 855 638 854 641 854 650 849 655 843 658 836 658 824 659 823 659 766 656 757 653 753 647 748 640 745Z";
+
+function SeptLockLogo({ opened, height = 96 }) {
+  const color = opened ? GREEN : INK;
+  return (
+    <svg viewBox="370 110 540 880" height={height} style={{ display: "block", margin: "0 auto", overflow: "visible" }} aria-hidden="true">
+      {/* ห่วง: ตอนรอ = ขยับขึ้นลงเบาๆ / ตอนเปิด = ยกขึ้นแล้วเอียงออก (หมุนรอบขาขวา) */}
+      <path
+        d={LOGO_SHACKLE}
+        fill={color}
+        style={{
+          transformBox: "fill-box",
+          transformOrigin: "100% 100%",
+          transform: opened ? "translateY(-70px) rotate(12deg)" : "none",
+          animation: opened ? "septShackleOpen .7s ease-out" : "septShackleWait 1.6s ease-in-out infinite",
+          transition: "fill .4s",
+        }}
+      />
+      <path d={LOGO_BODY} fill={color} style={{ transition: "fill .4s" }} />
+      {/* รูกุญแจ: กะพริบตอนรอ */}
+      <path d={LOGO_KEYHOLE} fill={color} style={{ transition: "fill .4s", animation: opened ? "none" : "septKeyhole 1.6s ease-in-out infinite" }} />
+    </svg>
+  );
 }
 
 function TimerDial({ progressMs, totalMs, active }) {
@@ -974,20 +1002,14 @@ export default function TrailLockerApp() {
             style={{ position: "fixed", inset: 0, background: "rgba(62,42,30,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 55, padding: 20 }}
           >
             <style>{`
-              @keyframes septPulse { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.08); opacity: .75 } }
-              @keyframes septPop { 0% { transform: scale(.6); opacity: 0 } 70% { transform: scale(1.1) } 100% { transform: scale(1); opacity: 1 } }
+              @keyframes septShackleWait { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-22px) } }
+              @keyframes septShackleOpen { 0% { transform: translateY(0) rotate(0deg) } 55% { transform: translateY(-85px) rotate(0deg) } 100% { transform: translateY(-70px) rotate(12deg) } }
+              @keyframes septKeyhole { 0%,100% { opacity: 1 } 50% { opacity: .3 } }
             `}</style>
             <div style={{ background: WHITE, width: "100%", maxWidth: 360, borderRadius: 12, padding: "28px 24px", textAlign: "center" }}>
-              {/* ไอคอน: กุญแจเต้นตอนรอ / เครื่องหมายถูกเด้งตอนเปิดแล้ว */}
-              <div
-                style={{
-                  width: 72, height: 72, margin: "0 auto 14px", borderRadius: "50%",
-                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34,
-                  background: opened ? GREEN : PAPER, color: WHITE,
-                  animation: opened ? "septPop .45s ease-out" : "septPulse 1.4s ease-in-out infinite",
-                }}
-              >
-                {opened ? "✓" : "🔑"}
+              {/* โลโก้ SEPT.LOCK: ห่วงขยับตอนรอ / ห่วงเด้งเปิด + เปลี่ยนเป็นสีเขียวตอนเปิดแล้ว */}
+              <div style={{ margin: "4px auto 16px", height: 96 }}>
+                <SeptLockLogo opened={opened} />
               </div>
 
               <div style={{ fontFamily: "'Fraunces', serif", fontSize: 19, fontWeight: 600, color: INK, marginBottom: 6 }}>
